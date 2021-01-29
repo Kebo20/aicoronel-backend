@@ -246,7 +246,7 @@ class PurchaseController extends Controller
             'purchase' => $Purchase,
             'detail' => $detail
         );
-        $filename = 'Compra' . time() . '.pdf'; //nombre del archivo que el usuario descarga
+        $filename = 'Compra_' . $Purchase->number_doc . '.pdf'; //nombre del archivo que el usuario descarga
         $pdf = PDF::setOptions(['logOutputFile' => storage_path('logs/pdf.log'), 'tempDir' => storage_path('logs/')])->loadView('pdf.purchase', compact('data'))->save("storage/purchases/" . $filename); //se guarda el archivo
 
         $url = Storage2::url('purchases/' . $filename);
@@ -266,14 +266,15 @@ class PurchaseController extends Controller
         $Purchase = Purchase::where('status', 1)->where('date', $request->date)->get();
         if ($Purchase == null) {
             return response()->json([
-                'message' => 'No existe una compra con esa fecha',
+                'message' => 'No existe una compra con esa fecha'
             ], 400);
         }
         $data = array(
-            'purchase' => $Purchase
+            'purchase' => $Purchase,
+            'fecha' => $request->date
         );
 
-        $filename = 'Compra' . date('d-m-Y', strtotime($request->date)) . '.pdf';//nombre del archivo que el usuario descarga
+        $filename = 'Compra_' . date('d-m-Y', strtotime($request->date)) . '.pdf'; //nombre del archivo que el usuario descarga
         $pdf = PDF::setOptions(['logOutputFile' => storage_path('logs/pdf.log'), 'tempDir' => storage_path('logs/')])->loadView('pdf.purchaseadate', compact('data'))->save("storage/purchases/" . $filename); //se guarda el archivo
 
         $url = Storage2::url('purchases/' . $filename);
@@ -284,64 +285,384 @@ class PurchaseController extends Controller
         ], 202);
     }
 
-    /*
-    public function export(Request $request)
+    public function printDateToDate(Request $request)
+    {
+        $validatedData = $request->validate([
+            'date' => 'required'
+        ]);
+
+        $Purchase = Purchase::where('status', 1)->whereBetween('date', $request->date)->get();
+
+        if ($Purchase == null || $Purchase->count() == 0) {
+            return response()->json([
+                'message' => 'No existe compras con ese rango de fechas'
+            ], 400);
+        }
+        $data = array(
+            'purchase' => $Purchase,
+            'fecha_inicio' => $request->date[0],
+            'fecha_fin' => $request->date[1]
+        );
+
+        $filename = 'Compra_Rango_' . date('d-m-Y', strtotime($request->date[0])) . '_a_' . date('d-m-Y', strtotime($request->date[1])) . '.pdf'; //nombre del archivo que el usuario descarga
+        $pdf = PDF::setOptions(['logOutputFile' => storage_path('logs/pdf.log'), 'tempDir' => storage_path('logs/')])->loadView('pdf.purchasedatetodate', compact('data'))->save("storage/purchases/" . $filename); //se guarda el archivo
+
+        $url = Storage2::url('purchases/' . $filename);
+        return response()->json([
+            'message' => 'PDF Generado.',
+            'data' => URL::to('/') . $url,
+            'data2' => $data
+        ], 202);
+    }
+
+    public function printForMonth(Request $request)
+    {
+        $validatedData = $request->validate([
+            'date' => 'required'
+        ]);
+
+        $year = date("Y");
+        $Purchase = Purchase::where('status', 1)->whereMonth('date', $request->date)->whereYear('date', $year)->get();
+
+        if ($Purchase == null) {
+            return response()->json([
+                'message' => 'No existe compras en ese mes'
+            ], 400);
+        }
+
+        switch ($request->date) {
+            case '01':
+                $data = array(
+                    'purchase' => $Purchase, 'mes' => $request->date = 'ENERO', 'ano' => $year
+                );
+                break;
+            case '02':
+                $data = array(
+                    'purchase' => $Purchase, 'mes' => $request->date = 'FEBRERO', 'ano' => $year
+                );
+                break;
+            case '03':
+                $data = array(
+                    'purchase' => $Purchase, 'mes' => $request->date = 'MARZO', 'ano' => $year
+                );
+                break;
+            case '04':
+                $data = array(
+                    'purchase' => $Purchase, 'mes' => $request->date = 'ABRIL', 'ano' => $year
+                );
+                break;
+            case '05':
+                $data = array(
+                    'purchase' => $Purchase, 'mes' => $request->date = 'MAYO', 'ano' => $year
+                );
+                break;
+            case '06':
+                $data = array(
+                    'purchase' => $Purchase, 'mes' => $request->date = 'JUNIO', 'ano' => $year
+                );
+                break;
+            case '07':
+                $data = array(
+                    'purchase' => $Purchase, 'mes' => $request->date = 'JULIO', 'ano' => $year
+                );
+                break;
+            case '08':
+                $data = array(
+                    'purchase' => $Purchase, 'mes' => $request->date = 'AGOSTO', 'ano' => $year
+                );
+                break;
+            case '09':
+                $data = array(
+                    'purchase' => $Purchase, 'mes' => $request->date = 'SEPTIEMBRE', 'ano' => $year
+                );
+                break;
+            case '10':
+                $data = array(
+                    'purchase' => $Purchase, 'mes' => $request->date = 'OCTUBRE', 'ano' => $year
+                );
+                break;
+            case '11':
+                $data = array(
+                    'purchase' => $Purchase, 'mes' => $request->date = 'NOVIEMBRE', 'ano' => $year
+                );
+                break;
+            case '12':
+                $data = array(
+                    'purchase' => $Purchase, 'mes' => $request->date = 'DICIEMBRE', 'ano' => $year
+                );
+                break;
+        }
+
+        $filename = 'Compra_Mes_' . $request->date . '-' . $year . '.pdf'; //nombre del archivo que el usuario descarga
+        $pdf = PDF::setOptions(['logOutputFile' => storage_path('logs/pdf.log'), 'tempDir' => storage_path('logs/')])->loadView('pdf.purchaseformonth', compact('data'))->save("storage/purchases/" . $filename); //se guarda el archivo
+
+        $url = Storage2::url('purchases/' . $filename);
+        return response()->json([
+            'message' => 'PDF Generado.',
+            'data' => URL::to('/') . $url,
+            'data2' => $data
+        ], 202);
+    }
+
+    public function export($id)
     {
         try {
-            $path_real = 'excel/formato_exportacion_orden_compra.xlsx'; //lee como plantilla
+            $path_real = 'excel/PurchaseExport.xlsx'; //lee como plantilla
             $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($path_real);
 
             $worksheet = $spreadsheet->getActiveSheet();
 
-
-            $purchase_orders = PurchaseOrder::where('status', 1)->get();
-
-            $index_cell = 2;
-
-            foreach ($purchase_orders as  $purchase_order) {
-
-
-                $worksheet->getCell('A' . $index_cell)->setValue($purchase_order->code);
-                $worksheet->getCell('B' . $index_cell)->setValue($purchase_order->date);
-                if ($purchase_order->type == '1') {
-                    $worksheet->getCell('C' . $index_cell)->setValue('Compra');
-                } else {
-                    $worksheet->getCell('C' . $index_cell)->setValue('Servicio');
-                }
-                $worksheet->getCell('D' . $index_cell)->setValue($purchase_order->provider->businessName);
-                $worksheet->getCell('E' . $index_cell)->setValue($purchase_order->order->code);
-                $worksheet->getCell('F' . $index_cell)->setValue($purchase_order->description);
-                $worksheet->getCell('G' . $index_cell)->setValue($purchase_order->IGVamount);
-                $worksheet->getCell('H' . $index_cell)->setValue($purchase_order->subtotal);
-                $worksheet->getCell('I' . $index_cell)->setValue($purchase_order->total);
-
-                if ($purchase_order->active == '1') {
-                    $worksheet->getCell('J' . $index_cell)->setValue('Activo');
-                } else {
-                    $worksheet->getCell('J' . $index_cell)->setValue('Inactivo');
-                }
-
-                $index_cell++;
+            if (!$id) {
+                return response()->json([
+                    'message' => 'ID inválido.'
+                ], 400);
             }
 
+            $Purchase = Purchase::findOrFail($id); //busca o falla
+            $detail = PurchaseDetail::where('status', 1)->where('id_purchase', $Purchase->id_purchase)->get();
+
+            $worksheet->getCell('F3')->setValue(date('d/m/Y', strtotime($Purchase->date)));
+            $worksheet->getCell('F4')->setValue($Purchase->type_doc);
+            $worksheet->getCell('F5')->setValue($Purchase->number_doc);
+            $worksheet->getCell('F6')->setValue($Purchase->observation);
+            $worksheet->getCell('F7')->setValue($Purchase->provider->name);
+            $worksheet->getCell('F8')->setValue($Purchase->storage->name);
+
+            $cell = 11;
+            foreach ($detail as $pd) {
+                $worksheet->getCell('B'.$cell)->setValue($pd->product->name);
+                $worksheet->getCell('D'.$cell)->setValue($pd->quantity);
+                $worksheet->getCell('E'.$cell)->setValue($pd->price);
+                $worksheet->getCell('F'.$cell)->setValue($pd->subtotal);
+
+                $cell = $cell + 1;
+            }
+
+            $igv = $cell;
+            $subtotal = $cell + 1;
+            $total = $cell + 2;
+            $worksheet->getCell('E'.$igv)->setValue('IGV');
+            $worksheet->getCell('E'.$subtotal)->setValue('SUBTOTAL');
+            $worksheet->getCell('E'.$total)->setValue('TOTAL');
+            $worksheet->getCell('F'.$igv)->setValue($Purchase->igv);
+            $worksheet->getCell('F'.$subtotal)->setValue($Purchase->subtotal);
+            $worksheet->getCell('F'.$total)->setValue($Purchase->total);
+
             $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
-
-
-            $writer->save("storage/ordenes_compra/Listado_ordenes_compra_" . time() . '.xlsx');//la salida
+            $writer->save("storage/purchases/Compra_" . $Purchase->number_doc . '.xlsx'); //la salida
 
             return response()->json([
                 'message' => 'Exportado correctamente',
-                'data' => URL::to('/') . "/storage/ordenes_compra/Listado_ordenes_compra_" . time() . '.xlsx'
+                'data' => URL::to('/') . "/storage/purchases/Compra_" . $Purchase->number_doc . '.xlsx'
             ], 200);
         } catch (\Exception $e) {
-
             DB::rollBack();
             return response()->json([
-                'message' => 'Excepcion ' . $e->getMessage(),
-
+                'message' => 'Excepcion ' . $e->getMessage()
             ],  500);
         }
     }
-}
-    */
+
+    public function exportADate(Request $request)
+    {
+        try {
+            $path_real = 'excel/PurchaseADate.xlsx';
+            $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($path_real);
+
+            $worksheet = $spreadsheet->getActiveSheet();
+
+            $validatedData = $request->validate([
+                'date' => 'required'
+            ]);
+
+            $Purchase = Purchase::where('status', 1)->where('date', $request->date)->get();
+            if ($Purchase == null) {
+                return response()->json([
+                    'message' => 'No existe una compra con esa fecha'
+                ], 400);
+            }
+
+            $worksheet->getCell('B2')->setValue('REPORTE DE COMPRAS DEL DÍA '.date('d/m/Y', strtotime($request->date)));
+
+            $x = 0;
+            $cell = 4;
+            foreach ($Purchase as $purchase) {
+                $worksheet->getCell('B'.$cell)->setValue(date('d/m/Y', strtotime($purchase->date)));
+                $worksheet->getCell('C'.$cell)->setValue($purchase->type_doc);
+                $worksheet->getCell('D'.$cell)->setValue($purchase->number_doc);
+                $worksheet->getCell('E'.$cell)->setValue($purchase->observation);
+                $worksheet->getCell('F'.$cell)->setValue($purchase->provider->name);
+                $worksheet->getCell('G'.$cell)->setValue($purchase->storage->name);
+                $worksheet->getCell('H'.$cell)->setValue($purchase->total);
+
+                $cell = $cell + 1;
+                $x = $x + $purchase->total;
+            }
+
+            $worksheet->getCell('G'.$cell)->setValue('TOTAL');
+            $worksheet->getCell('H'.$cell)->setValue(sprintf('%.2f',round($x,2)));
+
+            $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
+            $writer->save("storage/purchases/Compra_" . date('d-m-Y', strtotime($request->date)) . '.xlsx'); //la salida
+
+            return response()->json([
+                'message' => 'Exportado correctamente',
+                'data' => URL::to('/') . "/storage/purchases/Compra_" . date('d-m-Y', strtotime($request->date)) . '.xlsx'
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Excepcion ' . $e->getMessage()
+            ],  500);
+        }
+    }
+
+    public function exportDateToDate(Request $request)
+    {
+        try {
+            $path_real = 'excel/PurchaseDateToDate.xlsx';
+            $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($path_real);
+
+            $worksheet = $spreadsheet->getActiveSheet();
+
+            $validatedData = $request->validate([
+                'date' => 'required'
+            ]);
+
+            $Purchase = Purchase::where('status', 1)->whereBetween('date', $request->date)->get();
+
+            if ($Purchase == null || $Purchase->count() == 0) {
+                return response()->json([
+                    'message' => 'No existe compras con ese rango de fechas'
+                ], 400);
+            }
+
+            $worksheet->getCell('B2')->setValue('REPORTE DE COMPRAS DEL '.date('d/m/Y', strtotime($request->date[0])).' AL '.date('d/m/Y', strtotime($request->date[1])));
+
+            $x = 0;
+            $cell = 4;
+            foreach ($Purchase as $purchase) {
+                $worksheet->getCell('B'.$cell)->setValue(date('d/m/Y', strtotime($purchase->date)));
+                $worksheet->getCell('C'.$cell)->setValue($purchase->type_doc);
+                $worksheet->getCell('D'.$cell)->setValue($purchase->number_doc);
+                $worksheet->getCell('E'.$cell)->setValue($purchase->observation);
+                $worksheet->getCell('F'.$cell)->setValue($purchase->provider->name);
+                $worksheet->getCell('G'.$cell)->setValue($purchase->storage->name);
+                $worksheet->getCell('H'.$cell)->setValue($purchase->total);
+
+                $cell = $cell + 1;
+                $x = $x + $purchase->total;
+            }
+
+            $worksheet->getCell('G'.$cell)->setValue('TOTAL');
+            $worksheet->getCell('H'.$cell)->setValue(sprintf('%.2f',round($x,2)));
+
+            $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
+            $writer->save("storage/purchases/Compra_Rango_" . date('d-m-Y', strtotime($request->date[0])) . '_a_' . date('d-m-Y', strtotime($request->date[1])) . '.xlsx');
+
+            return response()->json([
+                'message' => 'Exportado correctamente',
+                'data' => URL::to('/') . "/storage/purchases/Compra_Rango_" . date('d-m-Y', strtotime($request->date[0])) . '_a_' . date('d-m-Y', strtotime($request->date[1])) . '.xlsx'
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Excepcion ' . $e->getMessage()
+            ],  500);
+        }
+    }
+
+    public function exportForMonth(Request $request)
+    {
+        try {
+            $path_real = 'excel/PurchaseForMonth.xlsx';
+            $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($path_real);
+
+            $worksheet = $spreadsheet->getActiveSheet();
+
+            $validatedData = $request->validate([
+                'date' => 'required'
+            ]);
+
+            $year = date("Y");
+            $Purchase = Purchase::where('status', 1)->whereMonth('date', $request->date)->whereYear('date', $year)->get();
+
+            if ($Purchase == null) {
+                return response()->json([
+                    'message' => 'No existe compras en ese mes'
+                ], 400);
+            }
+
+            switch ($request->date) {
+                case '01':
+                    $request->date = 'ENERO';
+                    break;
+                case '02':
+                    $request->date = 'FEBRERO';
+                    break;
+                case '03':
+                    $request->date = 'MARZO';
+                    break;
+                case '04':
+                    $request->date = 'ABRIL';
+                    break;
+                case '05':
+                    $request->date = 'MAYO';
+                    break;
+                case '06':
+                    $request->date = 'JUNIO';
+                    break;
+                case '07':
+                    $request->date = 'JULIO';
+                case '08':
+                    $request->date = 'AGOSTO';
+                    break;
+                case '09':
+                    $request->date = 'SEPTIEMBRE';
+                    break;
+                case '10':
+                    $request->date = 'OCTUBRE';
+                    break;
+                case '11':
+                    $request->date = 'NOVIEMBRE';
+                    break;
+                case '12':
+                    $request->date = 'DICIEMBRE';
+                    break;
+            }
+
+            $worksheet->getCell('B2')->setValue('REPORTE DE COMPRAS POR EL MES DE '.date('d/m/Y', strtotime($request->date)).' DEl '.$year);
+
+            $x = 0;
+            $cell = 4;
+            foreach ($Purchase as $purchase) {
+                $worksheet->getCell('B'.$cell)->setValue(date('d/m/Y', strtotime($purchase->date)));
+                $worksheet->getCell('C'.$cell)->setValue($purchase->type_doc);
+                $worksheet->getCell('D'.$cell)->setValue($purchase->number_doc);
+                $worksheet->getCell('E'.$cell)->setValue($purchase->observation);
+                $worksheet->getCell('F'.$cell)->setValue($purchase->provider->name);
+                $worksheet->getCell('G'.$cell)->setValue($purchase->storage->name);
+                $worksheet->getCell('H'.$cell)->setValue($purchase->total);
+
+                $cell = $cell + 1;
+                $x = $x + $purchase->total;
+            }
+
+            $worksheet->getCell('G'.$cell)->setValue('TOTAL');
+            $worksheet->getCell('H'.$cell)->setValue(sprintf('%.2f',round($x,2)));
+
+            $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
+            $writer->save("storage/purchases/Compra_Mes_" . $request->date . '-' . $year . '.xlsx');
+
+            return response()->json([
+                'message' => 'Exportado correctamente',
+                'data' => URL::to('/') . "/storage/purchases/Compra_Mes_" . $request->date . '-' . $year . '.xlsx'
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Excepcion ' . $e->getMessage()
+            ],  500);
+        }
+    }
 }

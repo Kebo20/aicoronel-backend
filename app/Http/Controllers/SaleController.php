@@ -264,8 +264,7 @@ class SaleController extends Controller
             'sale' => $Sale,
             'detail' => $detail
         );
-        //$filename = 'Venta' . time() . '.pdf'; //nombre del archivo que el usuario descarga
-        $filename = 'Venta' . time() . '.pdf';
+        $filename = 'Venta_' . $Sale->number_doc . '.pdf'; //nombre del archivo que el usuario descarga
         $pdf = PDF::setOptions(['logOutputFile' => storage_path('logs/pdf.log'), 'tempDir' => storage_path('logs/')])->loadView('pdf.sale', compact('data'))->save("storage/sales/" . $filename); //se guarda el archivo
 
         $url = Storage2::url('sales/' . $filename);
@@ -289,10 +288,11 @@ class SaleController extends Controller
             ], 400);
         }
         $data = array(
-            'sale' => $Sale
+            'sale' => $Sale,
+            'fecha' => $request->date
         );
 
-        $filename = 'Venta' . date('d-m-Y', strtotime($request->date)) . '.pdf'; //nombre del archivo que el usuario descarga
+        $filename = 'Venta_' . date('d-m-Y', strtotime($request->date)) . '.pdf';//nombre del archivo que el usuario descarga
         $pdf = PDF::setOptions(['logOutputFile' => storage_path('logs/pdf.log'), 'tempDir' => storage_path('logs/')])->loadView('pdf.saleadate', compact('data'))->save("storage/sales/" . $filename); //se guarda el archivo
 
         $url = Storage2::url('sales/' . $filename);
@@ -301,5 +301,390 @@ class SaleController extends Controller
             'data' => URL::to('/') . $url,
             'data2' => $data
         ], 202);
+    }
+
+    public function printDateToDate(Request $request)
+    {
+        $validatedData = $request->validate([
+            'date' => 'required'
+        ]);
+
+        $Sale = Sale::where('status', 1)->whereBetween('date', [$request->date, $request->date])->get();
+        if ($Sale == null) {
+            return response()->json([
+                'message' => 'No existe ventas con ese rango de fechas'
+            ], 400);
+        }
+        $data = array(
+            'sale' => $Sale,
+            'fecha_inicio' => $request->date[0],
+            'fecha_fin' => $request->date[1]
+        );
+
+        $filename = 'Venta_Rango_' . date('d-m-Y', strtotime($request->date[0])) . '_a_' . date('d-m-Y', strtotime($request->date[1])) . '.pdf'; //nombre del archivo que el usuario descarga
+        $pdf = PDF::setOptions(['logOutputFile' => storage_path('logs/pdf.log'), 'tempDir' => storage_path('logs/')])->loadView('pdf.saledatetodate', compact('data'))->save("storage/sales/" . $filename); //se guarda el archivo
+
+        $url = Storage2::url('sales/' . $filename);
+        return response()->json([
+            'message' => 'PDF Generado.',
+            'data' => URL::to('/') . $url,
+            'data2' => $data
+        ], 202);
+    }
+
+    public function printForMonth(Request $request)
+    {
+        $validatedData = $request->validate([
+            'date' => 'required'
+        ]);
+
+        $year = date("Y");
+        $Sale = Sale::where('status', 1)->whereMonth('date', $request->date)->whereYear('date', $year)->get();
+
+        if ($Sale == null) {
+            return response()->json([
+                'message' => 'No existe ventas en ese mes'
+            ], 400);
+        }
+
+        switch ($request->date) {
+            case '01':
+                $data = array(
+                    'purchase' => $Sale, 'mes' => $request->date = 'ENERO', 'ano' => $year
+                );
+                break;
+            case '02':
+                $data = array(
+                    'purchase' => $Sale, 'mes' => $request->date = 'FEBRERO', 'ano' => $year
+                );
+                break;
+            case '03':
+                $data = array(
+                    'purchase' => $Sale, 'mes' => $request->date = 'MARZO', 'ano' => $year
+                );
+                break;
+            case '04':
+                $data = array(
+                    'purchase' => $Sale, 'mes' => $request->date = 'ABRIL', 'ano' => $year
+                );
+                break;
+            case '05':
+                $data = array(
+                    'purchase' => $Sale, 'mes' => $request->date = 'MAYO', 'ano' => $year
+                );
+                break;
+            case '06':
+                $data = array(
+                    'purchase' => $Sale, 'mes' => $request->date = 'JUNIO', 'ano' => $year
+                );
+                break;
+            case '07':
+                $data = array(
+                    'purchase' => $Sale, 'mes' => $request->date = 'JULIO', 'ano' => $year
+                );
+                break;
+            case '08':
+                $data = array(
+                    'purchase' => $Sale, 'mes' => $request->date = 'AGOSTO', 'ano' => $year
+                );
+                break;
+            case '09':
+                $data = array(
+                    'purchase' => $Sale, 'mes' => $request->date = 'SEPTIEMBRE', 'ano' => $year
+                );
+                break;
+            case '10':
+                $data = array(
+                    'purchase' => $Sale, 'mes' => $request->date = 'OCTUBRE', 'ano' => $year
+                );
+                break;
+            case '11':
+                $data = array(
+                    'purchase' => $Sale, 'mes' => $request->date = 'NOVIEMBRE', 'ano' => $year
+                );
+                break;
+            case '12':
+                $data = array(
+                    'purchase' => $Sale, 'mes' => $request->date = 'DICIEMBRE', 'ano' => $year
+                );
+                break;
+        }
+
+        $filename = 'Venta_Mes_' . $request->date . '-' . $year . '.pdf'; //nombre del archivo que el usuario descarga
+        $pdf = PDF::setOptions(['logOutputFile' => storage_path('logs/pdf.log'), 'tempDir' => storage_path('logs/')])->loadView('pdf.saleformonth', compact('data'))->save("storage/sales/" . $filename); //se guarda el archivo
+
+        $url = Storage2::url('sales/' . $filename);
+        return response()->json([
+            'message' => 'PDF Generado.',
+            'data' => URL::to('/') . $url,
+            'data2' => $data
+        ], 202);
+    }
+
+    public function export($id)
+    {
+        try {
+            $path_real = 'excel/SaleExport.xlsx'; //lee como plantilla
+            $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($path_real);
+
+            $worksheet = $spreadsheet->getActiveSheet();
+
+            if (!$id) {
+                return response()->json([
+                    'message' => 'ID inválido.'
+                ], 400);
+            }
+
+            $Sale = Sale::findOrFail($id); //busca o falla
+            $detail = SaleDetail::where('status', 1)->where('id_sale', $Sale->id_sale)->get();
+
+            $worksheet->getCell('G3')->setValue(date('d/m/Y', strtotime($Sale->date)));
+            $worksheet->getCell('G4')->setValue($Sale->type_doc);
+            $worksheet->getCell('G5')->setValue($Sale->number_doc);
+            $worksheet->getCell('G6')->setValue($Sale->observation);
+            $worksheet->getCell('G7')->setValue($Sale->client->name);
+            $worksheet->getCell('G8')->setValue($Sale->storage->name);
+
+            $cell = 11;
+            foreach ($detail as $sd) {
+                $worksheet->getCell('B'.$cell)->setValue($sd->product->name);
+                $worksheet->getCell('D'.$cell)->setValue($sd->quantity);
+                $worksheet->getCell('E'.$cell)->setValue($sd->price);
+                $worksheet->getCell('F'.$cell)->setValue($sd->discount.'%');
+                $worksheet->getCell('G'.$cell)->setValue($sd->subtotal);
+
+                $cell = $cell + 1;
+            }
+
+            $igv = $cell;
+            $subtotal = $cell + 1;
+            $total = $cell + 2;
+            $worksheet->getCell('F'.$igv)->setValue('IGV');
+            $worksheet->getCell('F'.$subtotal)->setValue('SUBTOTAL');
+            $worksheet->getCell('F'.$total)->setValue('TOTAL');
+            $worksheet->getCell('G'.$igv)->setValue($Sale->igv);
+            $worksheet->getCell('G'.$subtotal)->setValue($Sale->subtotal);
+            $worksheet->getCell('G'.$total)->setValue($Sale->total);
+
+            $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
+            $writer->save("storage/sales/Venta_" . $Sale->number_doc . '.xlsx'); //la salida
+
+            return response()->json([
+                'message' => 'Exportado correctamente',
+                'data' => URL::to('/') . "/storage/sales/Venta_" . $Sale->number_doc . '.xlsx'
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Excepcion ' . $e->getMessage()
+            ],  500);
+        }
+    }
+
+    public function exportADate(Request $request)
+    {
+        try {
+            $path_real = 'excel/SaleADate.xlsx';
+            $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($path_real);
+
+            $worksheet = $spreadsheet->getActiveSheet();
+
+            $validatedData = $request->validate([
+                'date' => 'required'
+            ]);
+
+            $Sale = Sale::where('status', 1)->where('date', $request->date)->get();
+            if ($Sale == null) {
+                return response()->json([
+                    'message' => 'No existe una venta con esa fecha'
+                ], 400);
+            }
+
+            $worksheet->getCell('B2')->setValue('REPORTE DE VENTAS DEL DÍA '.date('d/m/Y', strtotime($request->date)));
+
+            $x = 0;
+            $cell = 4;
+            foreach ($Sale as $sale) {
+                $worksheet->getCell('B'.$cell)->setValue(date('d/m/Y', strtotime($sale->date)));
+                $worksheet->getCell('C'.$cell)->setValue($sale->type_doc);
+                $worksheet->getCell('D'.$cell)->setValue($sale->number_doc);
+                $worksheet->getCell('E'.$cell)->setValue($sale->observation);
+                $worksheet->getCell('F'.$cell)->setValue($sale->client->name);
+                $worksheet->getCell('G'.$cell)->setValue($sale->storage->name);
+                $worksheet->getCell('H'.$cell)->setValue($sale->discount.'%');
+                $worksheet->getCell('I'.$cell)->setValue($sale->total);
+
+                $cell = $cell + 1;
+                $x = $x + $sale->total;
+            }
+
+            $worksheet->getCell('H'.$cell)->setValue('TOTAL');
+            $worksheet->getCell('I'.$cell)->setValue(sprintf('%.2f',round($x,2)));
+
+            $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
+            $writer->save("storage/sales/Venta_" . date('d-m-Y', strtotime($request->date)) . '.xlsx'); //la salida
+
+            return response()->json([
+                'message' => 'Exportado correctamente',
+                'data' => URL::to('/') . "/storage/sales/Venta_" . date('d-m-Y', strtotime($request->date)) . '.xlsx'
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Excepcion ' . $e->getMessage()
+            ],  500);
+        }
+    }
+
+    public function exportDateToDate(Request $request)
+    {
+        try {
+            $path_real = 'excel/SaleDateToDate.xlsx';
+            $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($path_real);
+
+            $worksheet = $spreadsheet->getActiveSheet();
+
+            $validatedData = $request->validate([
+                'date' => 'required'
+            ]);
+
+            $Sale = Sale::where('status', 1)->whereBetween('date', $request->date)->get();
+
+            if ($Sale == null || $Sale->count() == 0) {
+                return response()->json([
+                    'message' => 'No existe ventas con ese rango de fechas'
+                ], 400);
+            }
+
+            $worksheet->getCell('B2')->setValue('REPORTE DE VENTAS DEL '.date('d/m/Y', strtotime($request->date[0])).' AL '.date('d/m/Y', strtotime($request->date[1])));
+
+            $x = 0;
+            $cell = 4;
+            foreach ($Sale as $sale) {
+                $worksheet->getCell('B'.$cell)->setValue(date('d/m/Y', strtotime($sale->date)));
+                $worksheet->getCell('C'.$cell)->setValue($sale->type_doc);
+                $worksheet->getCell('D'.$cell)->setValue($sale->number_doc);
+                $worksheet->getCell('E'.$cell)->setValue($sale->observation);
+                $worksheet->getCell('F'.$cell)->setValue($sale->client->name);
+                $worksheet->getCell('G'.$cell)->setValue($sale->storage->name);
+                $worksheet->getCell('H'.$cell)->setValue($sale->discount.'%');
+                $worksheet->getCell('I'.$cell)->setValue($sale->total);
+
+                $cell = $cell + 1;
+                $x = $x + $sale->total;
+            }
+
+            $worksheet->getCell('H'.$cell)->setValue('TOTAL');
+            $worksheet->getCell('I'.$cell)->setValue(sprintf('%.2f',round($x,2)));
+
+            $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
+            $writer->save("storage/sales/Venta_Rango_" . date('d-m-Y', strtotime($request->date[0])) . '_a_' . date('d-m-Y', strtotime($request->date[1])) . '.xlsx');
+
+            return response()->json([
+                'message' => 'Exportado correctamente',
+                'data' => URL::to('/') . "/storage/sales/Venta_Rango_" . date('d-m-Y', strtotime($request->date[0])) . '_a_' . date('d-m-Y', strtotime($request->date[1])) . '.xlsx'
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Excepcion ' . $e->getMessage()
+            ],  500);
+        }
+    }
+
+    public function exportForMonth(Request $request)
+    {
+        try {
+            $path_real = 'excel/SaleForMonth.xlsx';
+            $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($path_real);
+
+            $worksheet = $spreadsheet->getActiveSheet();
+
+            $validatedData = $request->validate([
+                'date' => 'required'
+            ]);
+
+            $year = date("Y");
+            $Sale = Sale::where('status', 1)->whereMonth('date', $request->date)->whereYear('date', $year)->get();
+
+            if ($Sale == null) {
+                return response()->json([
+                    'message' => 'No existe ventas en ese mes'
+                ], 400);
+            }
+
+            switch ($request->date) {
+                case '01':
+                    $request->date = 'ENERO';
+                    break;
+                case '02':
+                    $request->date = 'FEBRERO';
+                    break;
+                case '03':
+                    $request->date = 'MARZO';
+                    break;
+                case '04':
+                    $request->date = 'ABRIL';
+                    break;
+                case '05':
+                    $request->date = 'MAYO';
+                    break;
+                case '06':
+                    $request->date = 'JUNIO';
+                    break;
+                case '07':
+                    $request->date = 'JULIO';
+                case '08':
+                    $request->date = 'AGOSTO';
+                    break;
+                case '09':
+                    $request->date = 'SEPTIEMBRE';
+                    break;
+                case '10':
+                    $request->date = 'OCTUBRE';
+                    break;
+                case '11':
+                    $request->date = 'NOVIEMBRE';
+                    break;
+                case '12':
+                    $request->date = 'DICIEMBRE';
+                    break;
+            }
+
+            $worksheet->getCell('B2')->setValue('REPORTE DE VENTAS POR EL MES DE '.date('d/m/Y', strtotime($request->date)).' DEl '.$year);
+
+            $x = 0;
+            $cell = 4;
+            foreach ($Sale as $sale) {
+                $worksheet->getCell('B'.$cell)->setValue(date('d/m/Y', strtotime($sale->date)));
+                $worksheet->getCell('C'.$cell)->setValue($sale->type_doc);
+                $worksheet->getCell('D'.$cell)->setValue($sale->number_doc);
+                $worksheet->getCell('E'.$cell)->setValue($sale->observation);
+                $worksheet->getCell('F'.$cell)->setValue($sale->client->name);
+                $worksheet->getCell('G'.$cell)->setValue($sale->storage->name);
+                $worksheet->getCell('H'.$cell)->setValue($sale->discount.'%');
+                $worksheet->getCell('I'.$cell)->setValue($sale->total);
+
+                $cell = $cell + 1;
+                $x = $x + $sale->total;
+            }
+
+            $worksheet->getCell('H'.$cell)->setValue('TOTAL');
+            $worksheet->getCell('I'.$cell)->setValue(sprintf('%.2f',round($x,2)));
+
+            $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
+            $writer->save("storage/sales/Venta_Mes_" . $request->date . '-' . $year . '.xlsx');
+
+            return response()->json([
+                'message' => 'Exportado correctamente',
+                'data' => URL::to('/') . "/storage/sales/Venta_Mes_" . $request->date . '-' . $year . '.xlsx'
+            ], 200);
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Excepcion ' . $e->getMessage()
+            ],  500);
+        }
     }
 }
