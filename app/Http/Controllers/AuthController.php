@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
 {
@@ -75,6 +76,7 @@ class AuthController extends Controller
             'user'=>Auth::user()->name,
             'access_token' => $tokenResult->accessToken,
             'token_type' => 'Bearer',
+            'rol'=>$user->id_role,
             'expires_at' => Carbon::parse(
                 $tokenResult->token->expires_at
             )->toDateTimeString()
@@ -132,4 +134,6 @@ class AuthController extends Controller
     public function prueba() {
         return User::all();
     }
+
+   
 }

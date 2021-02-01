@@ -14,6 +14,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade as PDF;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Storage as Storage2;
 
@@ -22,7 +23,18 @@ class SaleController extends Controller
 
     public function index()
     {
-        return ResourcesSale::collection(Sale::get());
+        if(Auth::user()->id_role==2){
+            return ResourcesSale::collection(Sale::where('id_storage','1')->get());
+
+        }
+        if(Auth::user()->id_role==3){
+            return ResourcesSale::collection(Sale::where('id_storage','2')->get());
+        }
+
+        if(Auth::user()->id_role==1){
+            return ResourcesSale::collection(Sale::get());
+        }
+
     }
     public function store(Request $request)
     {
@@ -32,7 +44,7 @@ class SaleController extends Controller
                 'type_doc' => 'required',
                 'number_doc' => 'required',
                 'id_client' => 'required',
-                'id_storage' => 'required'
+               // 'id_storage' => 'required'
             ]);
 
             if ($request->details == null || $request->details == []) {
@@ -46,6 +58,18 @@ class SaleController extends Controller
                 return response()->json([
                     'message' => 'Ya existe una venta con el mismo número de documento'
                 ], 400);
+            }
+
+            if(Auth::user()->id_role==2){
+                $id_storage=1;
+            }
+
+            if(Auth::user()->id_role==3){
+                $id_storage=2;
+            }
+
+            if(Auth::user()->id_role==1){
+                $id_storage=$request->id_storage;
             }
 
             DB::beginTransaction();
@@ -74,7 +98,7 @@ class SaleController extends Controller
             $sale->number_doc = strip_tags($request->number_doc);
             $sale->observation = strip_tags($request->observation);
             $sale->id_client = $request->id_client;
-            $sale->id_storage = $request->id_storage;
+            $sale->id_storage = $id_storage;
             $sale->created_by = auth()->id();
             $sale->updated_by = auth()->id();
             $sale->save();
@@ -129,7 +153,6 @@ class SaleController extends Controller
                 $lot_old->quantity -= $detail['quantity'];
                 $lot_old->updated_by = auth()->id();
                 $lot_old->save();
-
 
 
                 $sale_detail = new SaleDetail();
@@ -187,6 +210,22 @@ class SaleController extends Controller
                 return response()->json([
                     'message' => 'id inválido.'
                 ], 400);
+            }
+
+            if (Auth::user()->id_role == 2) {
+                if ($sale->id_storage !='1') {
+                    return response()->json([
+                        'message' => 'No puede anular la venta de esta tienda'
+                    ], 400);
+                }
+            }
+    
+            if (Auth::user()->id_role == 3) {
+                if ($sale->id_storage !='2') {
+                    return response()->json([
+                        'message' => 'No puede anular la venta de esta tienda'
+                    ], 400);
+                }
             }
 
             $sale->status = 0;

@@ -14,13 +14,30 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade as PDF;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Storage as Storage2;
 
 class PurchaseController extends Controller
 {
-    public function index() {
-        return ResourcesPurchase::collection(Purchase::get());
+    public function index()
+    {
+        if (Auth::user()->id_role == 2) {
+
+            return ResourcesPurchase::collection(Purchase::where('id_storage', '1')->get());
+        }
+
+        if (Auth::user()->id_role == 3) {
+
+            return ResourcesPurchase::collection(Purchase::where('id_storage', '2')->get());
+        }
+
+        if (Auth::user()->id_role == 1) {
+
+            return ResourcesPurchase::collection(Purchase::get());
+        }
+
+       
     }
     public function store(Request $request)
     {
@@ -30,7 +47,7 @@ class PurchaseController extends Controller
                 'type_doc' => 'required',
                 'number_doc' => 'required|numeric',
                 'id_provider' => 'required',
-                'id_storage' => 'required'
+                //'id_storage' => 'required'
             ]);
 
             if ($request->details == null || $request->details == []) {
@@ -44,6 +61,18 @@ class PurchaseController extends Controller
                 return response()->json([
                     'message' => 'Ya existe una compra con el mismo número de documento.'
                 ], 400);
+            }
+
+            if (Auth::user()->id_role == 2) {
+                $id_storage = 1;
+            }
+
+            if (Auth::user()->id_role == 3) {
+                $id_storage = 2;
+            }
+
+            if (Auth::user()->id_role == 1) {
+                $id_storage = $request->id_storage;
             }
 
             DB::beginTransaction();
@@ -83,7 +112,7 @@ class PurchaseController extends Controller
             $purchase->number_doc = strip_tags($request->number_doc);
             $purchase->observation = strip_tags($request->observation);
             $purchase->id_provider = $request->id_provider;
-            $purchase->id_storage = $request->id_storage;
+            $purchase->id_storage = $id_storage;
             $purchase->created_by = auth()->id();
             $purchase->updated_by = auth()->id();
             $purchase->save();
@@ -158,6 +187,9 @@ class PurchaseController extends Controller
 
     public function destroy($id)
     {
+
+
+        
         try {
             /*
             return response()->json([
@@ -171,6 +203,25 @@ class PurchaseController extends Controller
                     'message' => 'id inválido.'
                 ], 400);
             }
+
+
+
+        if (Auth::user()->id_role == 2) {
+            if ($purchase->id_storage !='1') {
+                return response()->json([
+                    'message' => 'No puede anular la compra de esta tienda'
+                ], 400);
+            }
+        }
+
+        if (Auth::user()->id_role == 3) {
+            if ($purchase->id_storage !='2') {
+                return response()->json([
+                    'message' => 'No puede anular la compra de esta tienda'
+                ], 400);
+            }
+        }
+
 
             $purchase->status = 0;
             $purchase->updated_by = auth()->id();
@@ -430,10 +481,10 @@ class PurchaseController extends Controller
 
             $cell = 11;
             foreach ($detail as $pd) {
-                $worksheet->getCell('B'.$cell)->setValue($pd->product->name);
-                $worksheet->getCell('D'.$cell)->setValue($pd->quantity);
-                $worksheet->getCell('E'.$cell)->setValue($pd->price);
-                $worksheet->getCell('F'.$cell)->setValue($pd->subtotal);
+                $worksheet->getCell('B' . $cell)->setValue($pd->product->name);
+                $worksheet->getCell('D' . $cell)->setValue($pd->quantity);
+                $worksheet->getCell('E' . $cell)->setValue($pd->price);
+                $worksheet->getCell('F' . $cell)->setValue($pd->subtotal);
 
                 $cell = $cell + 1;
             }
@@ -441,12 +492,12 @@ class PurchaseController extends Controller
             $igv = $cell;
             $subtotal = $cell + 1;
             $total = $cell + 2;
-            $worksheet->getCell('E'.$igv)->setValue('IGV');
-            $worksheet->getCell('E'.$subtotal)->setValue('SUBTOTAL');
-            $worksheet->getCell('E'.$total)->setValue('TOTAL');
-            $worksheet->getCell('F'.$igv)->setValue($Purchase->igv);
-            $worksheet->getCell('F'.$subtotal)->setValue($Purchase->subtotal);
-            $worksheet->getCell('F'.$total)->setValue($Purchase->total);
+            $worksheet->getCell('E' . $igv)->setValue('IGV');
+            $worksheet->getCell('E' . $subtotal)->setValue('SUBTOTAL');
+            $worksheet->getCell('E' . $total)->setValue('TOTAL');
+            $worksheet->getCell('F' . $igv)->setValue($Purchase->igv);
+            $worksheet->getCell('F' . $subtotal)->setValue($Purchase->subtotal);
+            $worksheet->getCell('F' . $total)->setValue($Purchase->total);
 
             $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
             $writer->save("storage/purchases/Compra_" . $Purchase->number_doc . '.xlsx'); //la salida
@@ -482,25 +533,25 @@ class PurchaseController extends Controller
                 ], 400);
             }
 
-            $worksheet->getCell('B2')->setValue('REPORTE DE COMPRAS DEL DÍA '.date('d/m/Y', strtotime($request->date)));
+            $worksheet->getCell('B2')->setValue('REPORTE DE COMPRAS DEL DÍA ' . date('d/m/Y', strtotime($request->date)));
 
             $x = 0;
             $cell = 4;
             foreach ($Purchase as $purchase) {
-                $worksheet->getCell('B'.$cell)->setValue(date('d/m/Y', strtotime($purchase->date)));
-                $worksheet->getCell('C'.$cell)->setValue($purchase->type_doc);
-                $worksheet->getCell('D'.$cell)->setValue($purchase->number_doc);
-                $worksheet->getCell('E'.$cell)->setValue($purchase->observation);
-                $worksheet->getCell('F'.$cell)->setValue($purchase->provider->name);
-                $worksheet->getCell('G'.$cell)->setValue($purchase->storage->name);
-                $worksheet->getCell('H'.$cell)->setValue($purchase->total);
+                $worksheet->getCell('B' . $cell)->setValue(date('d/m/Y', strtotime($purchase->date)));
+                $worksheet->getCell('C' . $cell)->setValue($purchase->type_doc);
+                $worksheet->getCell('D' . $cell)->setValue($purchase->number_doc);
+                $worksheet->getCell('E' . $cell)->setValue($purchase->observation);
+                $worksheet->getCell('F' . $cell)->setValue($purchase->provider->name);
+                $worksheet->getCell('G' . $cell)->setValue($purchase->storage->name);
+                $worksheet->getCell('H' . $cell)->setValue($purchase->total);
 
                 $cell = $cell + 1;
                 $x = $x + $purchase->total;
             }
 
-            $worksheet->getCell('G'.$cell)->setValue('TOTAL');
-            $worksheet->getCell('H'.$cell)->setValue(sprintf('%.2f',round($x,2)));
+            $worksheet->getCell('G' . $cell)->setValue('TOTAL');
+            $worksheet->getCell('H' . $cell)->setValue(sprintf('%.2f', round($x, 2)));
 
             $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
             $writer->save("storage/purchases/Compra_" . date('d-m-Y', strtotime($request->date)) . '.xlsx'); //la salida
@@ -537,25 +588,25 @@ class PurchaseController extends Controller
                 ], 400);
             }
 
-            $worksheet->getCell('B2')->setValue('REPORTE DE COMPRAS DEL '.date('d/m/Y', strtotime($request->date[0])).' AL '.date('d/m/Y', strtotime($request->date[1])));
+            $worksheet->getCell('B2')->setValue('REPORTE DE COMPRAS DEL ' . date('d/m/Y', strtotime($request->date[0])) . ' AL ' . date('d/m/Y', strtotime($request->date[1])));
 
             $x = 0;
             $cell = 4;
             foreach ($Purchase as $purchase) {
-                $worksheet->getCell('B'.$cell)->setValue(date('d/m/Y', strtotime($purchase->date)));
-                $worksheet->getCell('C'.$cell)->setValue($purchase->type_doc);
-                $worksheet->getCell('D'.$cell)->setValue($purchase->number_doc);
-                $worksheet->getCell('E'.$cell)->setValue($purchase->observation);
-                $worksheet->getCell('F'.$cell)->setValue($purchase->provider->name);
-                $worksheet->getCell('G'.$cell)->setValue($purchase->storage->name);
-                $worksheet->getCell('H'.$cell)->setValue($purchase->total);
+                $worksheet->getCell('B' . $cell)->setValue(date('d/m/Y', strtotime($purchase->date)));
+                $worksheet->getCell('C' . $cell)->setValue($purchase->type_doc);
+                $worksheet->getCell('D' . $cell)->setValue($purchase->number_doc);
+                $worksheet->getCell('E' . $cell)->setValue($purchase->observation);
+                $worksheet->getCell('F' . $cell)->setValue($purchase->provider->name);
+                $worksheet->getCell('G' . $cell)->setValue($purchase->storage->name);
+                $worksheet->getCell('H' . $cell)->setValue($purchase->total);
 
                 $cell = $cell + 1;
                 $x = $x + $purchase->total;
             }
 
-            $worksheet->getCell('G'.$cell)->setValue('TOTAL');
-            $worksheet->getCell('H'.$cell)->setValue(sprintf('%.2f',round($x,2)));
+            $worksheet->getCell('G' . $cell)->setValue('TOTAL');
+            $worksheet->getCell('H' . $cell)->setValue(sprintf('%.2f', round($x, 2)));
 
             $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
             $writer->save("storage/purchases/Compra_Rango_" . date('d-m-Y', strtotime($request->date[0])) . '_a_' . date('d-m-Y', strtotime($request->date[1])) . '.xlsx');
@@ -631,25 +682,25 @@ class PurchaseController extends Controller
                     break;
             }
 
-            $worksheet->getCell('B2')->setValue('REPORTE DE COMPRAS POR EL MES DE '.date('d/m/Y', strtotime($request->date)).' DEl '.$year);
+            $worksheet->getCell('B2')->setValue('REPORTE DE COMPRAS POR EL MES DE ' . date('d/m/Y', strtotime($request->date)) . ' DEl ' . $year);
 
             $x = 0;
             $cell = 4;
             foreach ($Purchase as $purchase) {
-                $worksheet->getCell('B'.$cell)->setValue(date('d/m/Y', strtotime($purchase->date)));
-                $worksheet->getCell('C'.$cell)->setValue($purchase->type_doc);
-                $worksheet->getCell('D'.$cell)->setValue($purchase->number_doc);
-                $worksheet->getCell('E'.$cell)->setValue($purchase->observation);
-                $worksheet->getCell('F'.$cell)->setValue($purchase->provider->name);
-                $worksheet->getCell('G'.$cell)->setValue($purchase->storage->name);
-                $worksheet->getCell('H'.$cell)->setValue($purchase->total);
+                $worksheet->getCell('B' . $cell)->setValue(date('d/m/Y', strtotime($purchase->date)));
+                $worksheet->getCell('C' . $cell)->setValue($purchase->type_doc);
+                $worksheet->getCell('D' . $cell)->setValue($purchase->number_doc);
+                $worksheet->getCell('E' . $cell)->setValue($purchase->observation);
+                $worksheet->getCell('F' . $cell)->setValue($purchase->provider->name);
+                $worksheet->getCell('G' . $cell)->setValue($purchase->storage->name);
+                $worksheet->getCell('H' . $cell)->setValue($purchase->total);
 
                 $cell = $cell + 1;
                 $x = $x + $purchase->total;
             }
 
-            $worksheet->getCell('G'.$cell)->setValue('TOTAL');
-            $worksheet->getCell('H'.$cell)->setValue(sprintf('%.2f',round($x,2)));
+            $worksheet->getCell('G' . $cell)->setValue('TOTAL');
+            $worksheet->getCell('H' . $cell)->setValue(sprintf('%.2f', round($x, 2)));
 
             $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
             $writer->save("storage/purchases/Compra_Mes_" . $request->date . '-' . $year . '.xlsx');
