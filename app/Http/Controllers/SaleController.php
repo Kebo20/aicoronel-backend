@@ -36,6 +36,24 @@ class SaleController extends Controller
         }
 
     }
+
+    public function count() {
+        
+        if (Auth::user()->id_role == 2) {
+
+            return Sale::count()->where('id_storage', '1')->where('status','1');
+        }
+
+        if (Auth::user()->id_role == 3) {
+
+            return Sale::count()->where('id_storage', '2')->where('status','1');
+        }
+
+        if (Auth::user()->id_role == 1) {
+
+            return Sale::count()->where('status','1');
+        }
+    }
     public function store(Request $request)
     {
         try {

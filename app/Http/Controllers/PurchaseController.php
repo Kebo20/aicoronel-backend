@@ -39,6 +39,23 @@ class PurchaseController extends Controller
 
        
     }
+    public function count() {
+        
+        if (Auth::user()->id_role == 2) {
+
+            return Purchase::count()->where('id_storage', '1')->where('status','1');
+        }
+
+        if (Auth::user()->id_role == 3) {
+
+            return Purchase::count()->where('id_storage', '2')->where('status','1');
+        }
+
+        if (Auth::user()->id_role == 1) {
+
+            return Purchase::count()->where('status','1');
+        }
+    }
     public function store(Request $request)
     {
         try {

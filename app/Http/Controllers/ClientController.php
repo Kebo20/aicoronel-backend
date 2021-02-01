@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\Client as ResourcesClient;
 use App\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class ClientController extends Controller
@@ -12,6 +13,12 @@ class ClientController extends Controller
     //
     public function index() {
         return ResourcesClient::collection(Client::where("status",1)->get());
+    }
+
+    public function count(Request $request) {
+        
+
+        return Client::count()->where('status','1');
     }
 
     public function store(Request $request) {

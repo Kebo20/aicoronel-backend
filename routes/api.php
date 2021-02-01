@@ -82,6 +82,12 @@ Route::group([
         Route::post('sales/exportForMonth', 'SaleController@exportForMonth');
 
 
+        Route::get('providers/count', 'ProviderController@count');
+        Route::get('clients/count', 'ClientController@count');
+        Route::get('purchases/count', 'PurchaseController@count');
+        Route::get('sales/count', 'SaleController@count');
+
+
        
     });
 });

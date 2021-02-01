@@ -14,6 +14,12 @@ class ProviderController extends Controller
         return ResourcesProvider::collection(Provider::where("status",1)->get());
     }
 
+    public function count(Request $request) {
+       
+
+        return Provider::count()->where('status','1');
+    }
+
     public function store(Request $request) {
         $validatedData = $request->validate([
             'number_doc' => 'required|numeric',
