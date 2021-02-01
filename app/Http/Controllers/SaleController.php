@@ -205,7 +205,7 @@ class SaleController extends Controller
                 $s_d->status = 0;
                 $s_d->updated_by = auth()->id();
                 $s_d->save();
-                
+
                 $lot_old = Lot::findOrfail($s_d->id_lot);
                 $lot_old->quantity += $s_d->quantity;
                 $lot_old->updated_by = auth()->id();
@@ -438,19 +438,19 @@ class SaleController extends Controller
             $Sale = Sale::findOrFail($id); //busca o falla
             $detail = SaleDetail::where('status', 1)->where('id_sale', $Sale->id_sale)->get();
 
-            $worksheet->getCell('G3')->setValue(date('d/m/Y', strtotime($Sale->date)));
-            $worksheet->getCell('G4')->setValue($Sale->type_doc);
-            $worksheet->getCell('G5')->setValue($Sale->number_doc);
-            $worksheet->getCell('G6')->setValue($Sale->observation);
-            $worksheet->getCell('G7')->setValue($Sale->client->name);
-            $worksheet->getCell('G8')->setValue($Sale->storage->name);
+            $worksheet->getCell('G10')->setValue(date('d/m/Y', strtotime($Sale->date)));
+            $worksheet->getCell('G11')->setValue($Sale->type_doc);
+            $worksheet->getCell('G12')->setValue($Sale->number_doc);
+            $worksheet->getCell('G13')->setValue($Sale->observation);
+            $worksheet->getCell('G14')->setValue($Sale->client->name);
+            $worksheet->getCell('G15')->setValue($Sale->storage->name);
 
-            $cell = 11;
+            $cell = 18;
             foreach ($detail as $sd) {
                 $worksheet->getCell('B'.$cell)->setValue($sd->product->name);
                 $worksheet->getCell('D'.$cell)->setValue($sd->quantity);
                 $worksheet->getCell('E'.$cell)->setValue($sd->price);
-                $worksheet->getCell('F'.$cell)->setValue($sd->discount.'%');
+                $worksheet->getCell('F'.$cell)->setValue($sd->discount);
                 $worksheet->getCell('G'.$cell)->setValue($sd->subtotal);
 
                 $cell = $cell + 1;
@@ -500,10 +500,10 @@ class SaleController extends Controller
                 ], 400);
             }
 
-            $worksheet->getCell('B2')->setValue('REPORTE DE VENTAS DEL DÍA '.date('d/m/Y', strtotime($request->date)));
+            $worksheet->getCell('B9')->setValue('REPORTE DE VENTAS DEL DÍA '.date('d/m/Y', strtotime($request->date)));
 
             $x = 0;
-            $cell = 4;
+            $cell = 11;
             foreach ($Sale as $sale) {
                 $worksheet->getCell('B'.$cell)->setValue(date('d/m/Y', strtotime($sale->date)));
                 $worksheet->getCell('C'.$cell)->setValue($sale->type_doc);
@@ -511,7 +511,7 @@ class SaleController extends Controller
                 $worksheet->getCell('E'.$cell)->setValue($sale->observation);
                 $worksheet->getCell('F'.$cell)->setValue($sale->client->name);
                 $worksheet->getCell('G'.$cell)->setValue($sale->storage->name);
-                $worksheet->getCell('H'.$cell)->setValue($sale->discount.'%');
+                $worksheet->getCell('H'.$cell)->setValue($sale->discount);
                 $worksheet->getCell('I'.$cell)->setValue($sale->total);
 
                 $cell = $cell + 1;
@@ -556,10 +556,10 @@ class SaleController extends Controller
                 ], 400);
             }
 
-            $worksheet->getCell('B2')->setValue('REPORTE DE VENTAS DEL '.date('d/m/Y', strtotime($request->date[0])).' AL '.date('d/m/Y', strtotime($request->date[1])));
+            $worksheet->getCell('B9')->setValue('REPORTE DE VENTAS DEL '.date('d/m/Y', strtotime($request->date[0])).' AL '.date('d/m/Y', strtotime($request->date[1])));
 
             $x = 0;
-            $cell = 4;
+            $cell = 11;
             foreach ($Sale as $sale) {
                 $worksheet->getCell('B'.$cell)->setValue(date('d/m/Y', strtotime($sale->date)));
                 $worksheet->getCell('C'.$cell)->setValue($sale->type_doc);
@@ -567,7 +567,7 @@ class SaleController extends Controller
                 $worksheet->getCell('E'.$cell)->setValue($sale->observation);
                 $worksheet->getCell('F'.$cell)->setValue($sale->client->name);
                 $worksheet->getCell('G'.$cell)->setValue($sale->storage->name);
-                $worksheet->getCell('H'.$cell)->setValue($sale->discount.'%');
+                $worksheet->getCell('H'.$cell)->setValue($sale->discount);
                 $worksheet->getCell('I'.$cell)->setValue($sale->total);
 
                 $cell = $cell + 1;
@@ -651,10 +651,10 @@ class SaleController extends Controller
                     break;
             }
 
-            $worksheet->getCell('B2')->setValue('REPORTE DE VENTAS POR EL MES DE '.date('d/m/Y', strtotime($request->date)).' DEl '.$year);
+            $worksheet->getCell('B9')->setValue('REPORTE DE VENTAS POR EL MES DE '.date('d/m/Y', strtotime($request->date)).' DEl '.$year);
 
             $x = 0;
-            $cell = 4;
+            $cell = 11;
             foreach ($Sale as $sale) {
                 $worksheet->getCell('B'.$cell)->setValue(date('d/m/Y', strtotime($sale->date)));
                 $worksheet->getCell('C'.$cell)->setValue($sale->type_doc);
@@ -662,7 +662,7 @@ class SaleController extends Controller
                 $worksheet->getCell('E'.$cell)->setValue($sale->observation);
                 $worksheet->getCell('F'.$cell)->setValue($sale->client->name);
                 $worksheet->getCell('G'.$cell)->setValue($sale->storage->name);
-                $worksheet->getCell('H'.$cell)->setValue($sale->discount.'%');
+                $worksheet->getCell('H'.$cell)->setValue($sale->discount);
                 $worksheet->getCell('I'.$cell)->setValue($sale->total);
 
                 $cell = $cell + 1;

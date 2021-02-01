@@ -92,15 +92,18 @@
 
             <div style="width: 100%">
                 <div style="float: left;position: relative;width:70%">
-                    <img src="images/aicoronel.jpg" width="60"  height="80px" alt="">
+                    <img src="/images/aicoronel.png" width="60" height="80px" alt="">
                 </div>
                 <div style="background-color:#fcfcfc;border-radius: 16px; border: 0.03cm solid black;float: right;position: relative;width: 35%;text-align: center">
                     <b><span style="font-size: 15px">AGRO IMPORT CORONEL</span></b><br>
                     <span style="font-size: 12px"> RUC: PREGUNTAR</span>
+                    <!--
                     <div style="background-color:black;width:100%;padding:0.05cm">
-                        <span style="font-size: 12px;color:white">BAGUA / BAGUA GRANDE</span>
+                        <span style="font-size: 12px;color:white">Av. Héroes del Cenepa 1654 / Bagua</span>
+                        <span style="font-size: 12px;color:white">Av. Chachapoyas 1424 / Bagua Grande</span>
                     </div>
-                    <span style="font-size: 12px">CELULAR 988730981</span>
+                    -->
+                    <span style="font-size: 12px">Celular: 990233458</span>
                 </div>
             </div>
 
@@ -109,18 +112,18 @@
             <table class="table_assistance">
                 <tr>
                     <td colspan="7" rowspan="1" style="text-align:center; background:#1b1b1c;color:white">
-                        <h2><center>REPORTE DE COMPRAS POR DÍA SELECCIONADA</center></h2>
+                        <h2><center>REPORTE DE COMPRAS DEL DÍA {{date('d/m/Y', strtotime($data['fecha']))}}</center></h2>
                     </td>
                 </tr>
                 <thead>
                     <tr>
-                        <th style="background:#1b1b1c;color:white">FECHA</th>
-                        <th style="background:#1b1b1c;color:white">DOCUMENTO</th>
-                        <th style="background:#1b1b1c;color:white">NÚMERO</th>
-                        <th style="background:#1b1b1c;color:white">OBSERVACIÓN</th>
-                        <th style="background:#1b1b1c; text-align:center;color:white" >PROVEEDOR</th>
-                        <th style="background:#1b1b1c; text-align:center;color:white" >SUCURSAL</th>
-                        <th style="background:#1b1b1c; text-align:center;color:white" >TOTAL</th>
+                        <th style="background:#1b1b1c; text-align:center; color:white">FECHA</th>
+                        <th style="background:#1b1b1c; text-align:center; color:white">DOC</th>
+                        <th style="background:#1b1b1c; text-align:center; color:white">NÚMERO</th>
+                        <th style="background:#1b1b1c; text-align:center; color:white">OBSERV</th>
+                        <th style="background:#1b1b1c; text-align:center; color:white" >PROVEEDOR</th>
+                        <th style="background:#1b1b1c; text-align:center; color:white" >SUCURSAL</th>
+                        <th style="background:#1b1b1c; text-align:center; color:white" >TOTAL</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -128,31 +131,31 @@
                     @foreach($data['purchase'] as $key => $detail)
                     @if($key%2==0)
                         <tr style="background: #dbdedf">
-                            <td colspan="1">{{date('d-m-Y', strtotime($detail->date))}}</td>
-                            <td colspan="1">{{$detail->type_doc}}</td>
-                            <td colspan="1">{{$detail->number_doc}}</td>
-                            <td colspan="1">{{$detail->observation}}</td>
+                            <td colspan="1" style="text-align:center;">{{date('d/m/Y', strtotime($detail->date))}}</td>
+                            <td colspan="1" style="text-align:center;">{{$detail->type_doc}}</td>
+                            <td colspan="1" style="text-align:center;">{{$detail->number_doc}}</td>
+                            <td colspan="1" style="text-align:center;">{{$detail->observation}}</td>
                             <td colspan="1" style="text-align:center;">{{$detail->provider->name}}</td>
                             <td colspan="1" style="text-align:center;">{{$detail->storage->name}}</td>
-                            <td colspan="1" style="text-align:center;">{{sprintf('%.2f',round($detail->total,2))}}</td>
+                            <td colspan="1" style="text-align:right;">{{sprintf('%.2f',round($detail->total,2))}}</td>
                         </tr>
                         {{$x = $x + $detail->total}}
                         @else
                         <tr>
-                            <td colspan="1">{{date('d-m-Y', strtotime($detail->date))}}</td>
-                            <td colspan="1">{{$detail->type_doc}}</td>
-                            <td colspan="1">{{$detail->number_doc}}</td>
-                            <td colspan="1">{{$detail->observation}}</td>
+                            <td colspan="1" style="text-align:center;">{{date('d/m/Y', strtotime($detail->date))}}</td>
+                            <td colspan="1" style="text-align:center;">{{$detail->type_doc}}</td>
+                            <td colspan="1" style="text-align:center;">{{$detail->number_doc}}</td>
+                            <td colspan="1" style="text-align:center;">{{$detail->observation}}</td>
                             <td colspan="1" style="text-align:center;">{{$detail->provider->name}}</td>
                             <td colspan="1" style="text-align:center;">{{$detail->storage->name}}</td>
-                            <td colspan="1" style="text-align:center;">{{sprintf('%.2f',round($detail->total,2))}}</td>
+                            <td colspan="1" style="text-align:right;">{{sprintf('%.2f',round($detail->total,2))}}</td>
                         </tr>
                         {{$x = $x + $detail->total}}
                     @endif
                     @endforeach
                     <tr>
-                        <td colspan="6" style="text-align:right;font-weight:bold;">TOTAL DE COMPRAS POR DÍA</td>
-                        <td colspan="1" style="font-weight:bold;background:#1b1b1c;color:white;text-align:center;font-size:13px"><b>S/. {{sprintf('%.2f',round($x,2))}}</b></td>
+                        <td colspan="6" style="text-align:right;font-weight:bold;">TOTAL DE COMPRAS</td>
+                        <td colspan="1" style="font-weight:bold;background:#1b1b1c;color:white;text-align:right;font-size:13px"><b>S/. {{sprintf('%.2f',round($x,2))}}</b></td>
                     </tr>
                 </tbody>
            </table>

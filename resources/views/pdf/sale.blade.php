@@ -92,15 +92,15 @@
 
             <div style="width: 100%">
                 <div style="float: left;position: relative;width:70%">
-                    <img src="storage/images/aicoronel.jpg" width="60"  height="80px" alt="">
+                    <img src="/images/aicoronel.png" width="60" height="80px" alt="">
                 </div>
                 <div style="background-color:#fcfcfc;border-radius: 16px; border: 0.03cm solid black;float: right;position: relative;width: 35%;text-align: center">
                     <b><span style="font-size: 15px">AGRO IMPORT CORONEL</span></b><br>
                     <span style="font-size: 12px"> RUC: PREGUNTAR</span>
                     <div style="background-color:black;width:100%;padding:0.05cm">
-                        <span style="font-size: 12px;color:white">NÚMERO DE DOCUMENTO</span>
+                        <span style="font-size: 12px;color:white">N° DOC: {{$data['sale']->number_doc}}</span>
                     </div>
-                    <span style="font-size: 12px">{{$data['sale']->number_doc}}</span>
+                    <span style="font-size: 12px">Celular: 990233458</span>
                 </div>
             </div>
 
@@ -116,7 +116,7 @@
                     <td colspan="1" rowspan="1" style="text-align:left; width:100px!important;font-weight:bold;background: #dbdedf">
                         DÍA
                     </td>
-                    <td  colspan="1" rowspan="1" style="text-align:left;">{{$data['sale']->date}}</td>
+                    <td  colspan="1" rowspan="1" style="text-align:left;">{{date('d/m/Y', strtotime($data['sale']->date))}}</td>
                 </tr>
                 <tr>
                     <td colspan="1" rowspan="1" style="text-align:left; width:100px!important;font-weight:bold;background: #dbdedf">
@@ -152,29 +152,29 @@
             <table class="table_assistance">
                 <thead>
                     <tr>
-                        <th style="background:#1b1b1c;color:white">PRODUCTO</th>
-                        <th style="background:#1b1b1c; text-align:center;color:white" >CANT</th>
-                        <th style="background:#1b1b1c; text-align:center;color:white" >PREC</th>
-                        <th style="background:#1b1b1c; text-align:center;color:white" >DESC</th>
-                        <th style="background:#1b1b1c; text-align:center;color:white" >SUBT</th>
+                        <th style="background:#1b1b1c; text-align:center; color:white">PRODUCTO</th>
+                        <th style="background:#1b1b1c; text-align:center; color:white">CANT</th>
+                        <th style="background:#1b1b1c; text-align:center; color:white">PREC</th>
+                        <th style="background:#1b1b1c; text-align:center; color:white">DESC</th>
+                        <th style="background:#1b1b1c; text-align:center; color:white">SUBT</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($data['detail'] as $key => $detail)
                     @if($key%2==0)
                         <tr style="background: #dbdedf">
-                            <td colspan="1">{{$detail->product->name}}</td>
+                            <td colspan="1" style="text-align:center;">{{$detail->product->name}}</td>
                             <td colspan="1" style="text-align:center;">{{$detail->quantity}}</td>
                             <td colspan="1" style="text-align:center;">{{sprintf('%.2f',round($detail->price,2))}}</td>
-                            <td colspan="1" style="text-align:center;">{{$detail->discount}}%</td>
+                            <td colspan="1" style="text-align:center;">{{$detail->discount}}</td>
                             <td colspan="1" style="text-align:center;">{{sprintf('%.2f',round($detail->subtotal,2))}}</td>
                         </tr>
                         @else
                         <tr>
-                            <td colspan="1">{{$detail->product->name}}</td>
+                            <td colspan="1" style="text-align:center;">{{$detail->product->name}}</td>
                             <td colspan="1" style="text-align:center;">{{$detail->quantity}}</td>
                             <td colspan="1" style="text-align:center;">{{sprintf('%.2f',round($detail->price,2))}}</td>
-                            <td colspan="1" style="text-align:center;">{{$detail->discount}}%</td>
+                            <td colspan="1" style="text-align:center;">{{$detail->discount}}</td>
                             <td colspan="1" style="text-align:center;">{{sprintf('%.2f',round($detail->subtotal,2))}}</td>
                         </tr>
                         @endif

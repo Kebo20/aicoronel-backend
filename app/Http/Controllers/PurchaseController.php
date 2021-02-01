@@ -14,13 +14,20 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade as PDF;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Storage as Storage2;
 
 class PurchaseController extends Controller
 {
     public function index() {
-        return ResourcesPurchase::collection(Purchase::get());
+        if(Auth::user()->id_role == 2) {
+            return ResourcesPurchase::collection(Purchase::where('id_storage', 1)->get());
+        } else if(Auth::user()->id_role == 3) {
+            return ResourcesPurchase::collection(Purchase::where('id_storage', 2)->get());
+        } else {
+            return ResourcesPurchase::collection(Purchase::get());
+        }
     }
     public function store(Request $request)
     {
@@ -421,14 +428,14 @@ class PurchaseController extends Controller
             $Purchase = Purchase::findOrFail($id); //busca o falla
             $detail = PurchaseDetail::where('status', 1)->where('id_purchase', $Purchase->id_purchase)->get();
 
-            $worksheet->getCell('F3')->setValue(date('d/m/Y', strtotime($Purchase->date)));
-            $worksheet->getCell('F4')->setValue($Purchase->type_doc);
-            $worksheet->getCell('F5')->setValue($Purchase->number_doc);
-            $worksheet->getCell('F6')->setValue($Purchase->observation);
-            $worksheet->getCell('F7')->setValue($Purchase->provider->name);
-            $worksheet->getCell('F8')->setValue($Purchase->storage->name);
+            $worksheet->getCell('F10')->setValue(date('d/m/Y', strtotime($Purchase->date)));
+            $worksheet->getCell('F11')->setValue($Purchase->type_doc);
+            $worksheet->getCell('F12')->setValue($Purchase->number_doc);
+            $worksheet->getCell('F13')->setValue($Purchase->observation);
+            $worksheet->getCell('F14')->setValue($Purchase->provider->name);
+            $worksheet->getCell('F15')->setValue($Purchase->storage->name);
 
-            $cell = 11;
+            $cell = 18;
             foreach ($detail as $pd) {
                 $worksheet->getCell('B'.$cell)->setValue($pd->product->name);
                 $worksheet->getCell('D'.$cell)->setValue($pd->quantity);
@@ -482,10 +489,10 @@ class PurchaseController extends Controller
                 ], 400);
             }
 
-            $worksheet->getCell('B2')->setValue('REPORTE DE COMPRAS DEL DÍA '.date('d/m/Y', strtotime($request->date)));
+            $worksheet->getCell('B9')->setValue('REPORTE DE COMPRAS DEL DÍA '.date('d/m/Y', strtotime($request->date)));
 
             $x = 0;
-            $cell = 4;
+            $cell = 11;
             foreach ($Purchase as $purchase) {
                 $worksheet->getCell('B'.$cell)->setValue(date('d/m/Y', strtotime($purchase->date)));
                 $worksheet->getCell('C'.$cell)->setValue($purchase->type_doc);
@@ -537,10 +544,10 @@ class PurchaseController extends Controller
                 ], 400);
             }
 
-            $worksheet->getCell('B2')->setValue('REPORTE DE COMPRAS DEL '.date('d/m/Y', strtotime($request->date[0])).' AL '.date('d/m/Y', strtotime($request->date[1])));
+            $worksheet->getCell('B9')->setValue('REPORTE DE COMPRAS DEL '.date('d/m/Y', strtotime($request->date[0])).' AL '.date('d/m/Y', strtotime($request->date[1])));
 
             $x = 0;
-            $cell = 4;
+            $cell = 11;
             foreach ($Purchase as $purchase) {
                 $worksheet->getCell('B'.$cell)->setValue(date('d/m/Y', strtotime($purchase->date)));
                 $worksheet->getCell('C'.$cell)->setValue($purchase->type_doc);
@@ -631,10 +638,10 @@ class PurchaseController extends Controller
                     break;
             }
 
-            $worksheet->getCell('B2')->setValue('REPORTE DE COMPRAS POR EL MES DE '.date('d/m/Y', strtotime($request->date)).' DEl '.$year);
+            $worksheet->getCell('B9')->setValue('REPORTE DE COMPRAS POR EL MES DE '.date('d/m/Y', strtotime($request->date)).' DEl '.$year);
 
             $x = 0;
-            $cell = 4;
+            $cell = 11;
             foreach ($Purchase as $purchase) {
                 $worksheet->getCell('B'.$cell)->setValue(date('d/m/Y', strtotime($purchase->date)));
                 $worksheet->getCell('C'.$cell)->setValue($purchase->type_doc);
