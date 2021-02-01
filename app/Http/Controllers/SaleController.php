@@ -319,11 +319,22 @@ class SaleController extends Controller
         $validatedData = $request->validate([
             'date' => 'required'
         ]);
+        if(Auth::user()->id_role==2){
+            $id_storage=1;
+        }
 
-        $Sale = Sale::where('status', 1)->where('date', $request->date)->get();
+        if(Auth::user()->id_role==3){
+            $id_storage=2;
+        }
+
+        if(Auth::user()->id_role==1){
+            $id_storage=$request->id_storage;
+        }
+
+        $Sale = Sale::where('status', 1)->where('date', $request->date)->where('id_storage', $id_storage)->get();
         if ($Sale == null) {
             return response()->json([
-                'message' => 'No existe una venta con esa fecha',
+                'message' => 'No existe una venta con esta fecha',
             ], 400);
         }
         $data = array(
@@ -348,8 +359,20 @@ class SaleController extends Controller
             'date' => 'required'
         ]);
 
-        $Sale = Sale::where('status', 1)->whereBetween('date', [$request->date, $request->date])->get();
-        if ($Sale == null) {
+        if(Auth::user()->id_role==2){
+            $id_storage=1;
+        }
+
+        if(Auth::user()->id_role==3){
+            $id_storage=2;
+        }
+
+        if(Auth::user()->id_role==1){
+            $id_storage=$request->id_storage;
+        }
+
+        $Sale = Sale::where('status', 1)->whereBetween('date', $request->date)->where('id_storage', $id_storage)->orderBy('date')->get();
+        if ($Sale == null|| $Sale->count() == 0) {
             return response()->json([
                 'message' => 'No existe ventas con ese rango de fechas'
             ], 400);
@@ -377,8 +400,20 @@ class SaleController extends Controller
             'date' => 'required'
         ]);
 
+        if(Auth::user()->id_role==2){
+            $id_storage=1;
+        }
+
+        if(Auth::user()->id_role==3){
+            $id_storage=2;
+        }
+
+        if(Auth::user()->id_role==1){
+            $id_storage=$request->id_storage;
+        }
+
         $year = date("Y");
-        $Sale = Sale::where('status', 1)->whereMonth('date', $request->date)->whereYear('date', $year)->get();
+        $Sale = Sale::where('status', 1)->whereMonth('date', $request->date)->whereYear('date', $year)->where('id_storage', $id_storage)->orderBy('date')->get();
 
         if ($Sale == null) {
             return response()->json([
@@ -531,8 +566,20 @@ class SaleController extends Controller
             $validatedData = $request->validate([
                 'date' => 'required'
             ]);
+            if(Auth::user()->id_role==2){
+                $id_storage=1;
+            }
+    
+            if(Auth::user()->id_role==3){
+                $id_storage=2;
+            }
+    
+            if(Auth::user()->id_role==1){
+                $id_storage=$request->id_storage;
+            }
+    
 
-            $Sale = Sale::where('status', 1)->where('date', $request->date)->get();
+            $Sale = Sale::where('status', 1)->where('date', $request->date)->where('id_storage', $id_storage)->get();
             if ($Sale == null) {
                 return response()->json([
                     'message' => 'No existe una venta con esa fecha'
@@ -587,7 +634,20 @@ class SaleController extends Controller
                 'date' => 'required'
             ]);
 
-            $Sale = Sale::where('status', 1)->whereBetween('date', $request->date)->get();
+            if(Auth::user()->id_role==2){
+                $id_storage=1;
+            }
+    
+            if(Auth::user()->id_role==3){
+                $id_storage=2;
+            }
+    
+            if(Auth::user()->id_role==1){
+                $id_storage=$request->id_storage;
+            }
+    
+
+            $Sale = Sale::where('status', 1)->whereBetween('date', $request->date)->where('id_storage', $id_storage)->orderBy('date')->get();
 
             if ($Sale == null || $Sale->count() == 0) {
                 return response()->json([
@@ -642,9 +702,20 @@ class SaleController extends Controller
             $validatedData = $request->validate([
                 'date' => 'required'
             ]);
+            if(Auth::user()->id_role==2){
+                $id_storage=1;
+            }
+    
+            if(Auth::user()->id_role==3){
+                $id_storage=2;
+            }
+    
+            if(Auth::user()->id_role==1){
+                $id_storage=$request->id_storage;
+            }
 
             $year = date("Y");
-            $Sale = Sale::where('status', 1)->whereMonth('date', $request->date)->whereYear('date', $year)->get();
+            $Sale = Sale::where('status', 1)->whereMonth('date', $request->date)->whereYear('date', $year)->where('id_storage', $id_storage)->orderBy('date')->get();
 
             if ($Sale == null) {
                 return response()->json([

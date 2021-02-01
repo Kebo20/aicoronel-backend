@@ -314,7 +314,19 @@ class PurchaseController extends Controller
             'date' => 'required'
         ]);
 
-        $Purchase = Purchase::where('status', 1)->where('date', $request->date)->get();
+        if(Auth::user()->id_role==2){
+            $id_storage=1;
+        }
+
+        if(Auth::user()->id_role==3){
+            $id_storage=2;
+        }
+
+        if(Auth::user()->id_role==1){
+            $id_storage=$request->id_storage;
+        }
+
+        $Purchase = Purchase::where('status', 1)->where('date', $request->date)->where('id_storage', $id_storage)->get();
         if ($Purchase == null) {
             return response()->json([
                 'message' => 'No existe una compra con esa fecha'
@@ -341,8 +353,20 @@ class PurchaseController extends Controller
         $validatedData = $request->validate([
             'date' => 'required'
         ]);
+        if(Auth::user()->id_role==2){
+            $id_storage=1;
+        }
 
-        $Purchase = Purchase::where('status', 1)->whereBetween('date', $request->date)->get();
+        if(Auth::user()->id_role==3){
+            $id_storage=2;
+        }
+
+        if(Auth::user()->id_role==1){
+            $id_storage=$request->id_storage;
+        }
+
+        $Purchase = Purchase::where('status', 1)->whereBetween('date', $request->date)->where('id_storage', $id_storage)
+        ->orderBy('date')->get();
 
         if ($Purchase == null || $Purchase->count() == 0) {
             return response()->json([
@@ -371,9 +395,21 @@ class PurchaseController extends Controller
         $validatedData = $request->validate([
             'date' => 'required'
         ]);
+        if(Auth::user()->id_role==2){
+            $id_storage=1;
+        }
+
+        if(Auth::user()->id_role==3){
+            $id_storage=2;
+        }
+
+        if(Auth::user()->id_role==1){
+            $id_storage=$request->id_storage;
+        }
 
         $year = date("Y");
-        $Purchase = Purchase::where('status', 1)->whereMonth('date', $request->date)->whereYear('date', $year)->get();
+        $Purchase = Purchase::where('status', 1)->whereMonth('date', $request->date)->whereYear('date', $year)->where('id_storage', $id_storage)
+        ->orderBy('date')->get();
 
         if ($Purchase == null) {
             return response()->json([
@@ -469,6 +505,7 @@ class PurchaseController extends Controller
                 ], 400);
             }
 
+
             $Purchase = Purchase::findOrFail($id); //busca o falla
             $detail = PurchaseDetail::where('status', 1)->where('id_purchase', $Purchase->id_purchase)->get();
 
@@ -525,8 +562,19 @@ class PurchaseController extends Controller
             $validatedData = $request->validate([
                 'date' => 'required'
             ]);
+            if(Auth::user()->id_role==2){
+                $id_storage=1;
+            }
+    
+            if(Auth::user()->id_role==3){
+                $id_storage=2;
+            }
+    
+            if(Auth::user()->id_role==1){
+                $id_storage=$request->id_storage;
+            }
 
-            $Purchase = Purchase::where('status', 1)->where('date', $request->date)->get();
+            $Purchase = Purchase::where('status', 1)->where('date', $request->date)->where('id_storage', $id_storage)->get();
             if ($Purchase == null) {
                 return response()->json([
                     'message' => 'No existe una compra con esa fecha'
@@ -579,8 +627,18 @@ class PurchaseController extends Controller
             $validatedData = $request->validate([
                 'date' => 'required'
             ]);
-
-            $Purchase = Purchase::where('status', 1)->whereBetween('date', $request->date)->get();
+            if(Auth::user()->id_role==2){
+                $id_storage=1;
+            }
+    
+            if(Auth::user()->id_role==3){
+                $id_storage=2;
+            }
+    
+            if(Auth::user()->id_role==1){
+                $id_storage=$request->id_storage;
+            }
+            $Purchase = Purchase::where('status', 1)->whereBetween('date', $request->date)->where('id_storage', $id_storage)->orderBy('date')->get();
 
             if ($Purchase == null || $Purchase->count() == 0) {
                 return response()->json([
@@ -634,9 +692,20 @@ class PurchaseController extends Controller
             $validatedData = $request->validate([
                 'date' => 'required'
             ]);
+            if(Auth::user()->id_role==2){
+                $id_storage=1;
+            }
+    
+            if(Auth::user()->id_role==3){
+                $id_storage=2;
+            }
+    
+            if(Auth::user()->id_role==1){
+                $id_storage=$request->id_storage;
+            }
 
             $year = date("Y");
-            $Purchase = Purchase::where('status', 1)->whereMonth('date', $request->date)->whereYear('date', $year)->get();
+            $Purchase = Purchase::where('status', 1)->whereMonth('date', $request->date)->whereYear('date', $year)->where('id_storage', $id_storage)->orderBy('date')->get();
 
             if ($Purchase == null) {
                 return response()->json([

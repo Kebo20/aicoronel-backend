@@ -56,6 +56,14 @@ Route::group([
         Route::get('categories', 'CategoryController@index');
         Route::get('products', 'ProductController@index');
 
+        Route::post('prueba', 'AuthController@prueba');
+        Route::get('lots/list', 'LotController@list');
+        Route::get('clients/list', 'ClientController@list');
+        Route::apiResource('clients', 'ClientController');
+        Route::apiResource('lots', 'LotController');
+        Route::apiResource('purchases', 'PurchaseController');
+        Route::apiResource('sales', 'SaleController');
+
         Route::get('purchases/print/{id}', 'PurchaseController@print');
         Route::get('purchases/export/{id}', 'PurchaseController@export');
         Route::get('sales/print/{id}', 'SaleController@print');
@@ -74,13 +82,7 @@ Route::group([
         Route::post('sales/exportForMonth', 'SaleController@exportForMonth');
 
 
-        Route::post('prueba', 'AuthController@prueba');
-        Route::get('lots/list', 'LotController@list');
-        Route::get('clients/list', 'ClientController@list');
-        Route::apiResource('clients', 'ClientController');
-        Route::apiResource('lots', 'LotController');
-        Route::apiResource('purchases', 'PurchaseController');
-        Route::apiResource('sales', 'SaleController');
+       
     });
 });
 
