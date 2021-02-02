@@ -804,8 +804,21 @@ class PurchaseController extends Controller
         }
     }
 
-    public function totalForMonth() {
+    public function totalForMonth(Request $request) {
+        if(Auth::user()->id_role==2){
+            $id_storage=1;
+        }
+
+        if(Auth::user()->id_role==3){
+            $id_storage=2;
+        }
+
+        if(Auth::user()->id_role==1){
+            $id_storage=$request->id_storage;
+        }
+
         $year = date("Y");
-        return Purchase::groupBy(DB::raw('month(date)'))->where('status', 1)->whereYear('date', $year)->sum('total');
+        //return Purchase::groupBy(DB::raw('month(date)'))->where('status', 1)->whereYear('date', $year)->where('id_storage',$id_storage)->sum('total');
+    return DB::select("select sum(total) as total from purchases where id_storage=".$id_storage." and status=1 group by MONTH(date)");
     }
 }
