@@ -38,7 +38,7 @@ class SaleController extends Controller
     }
 
     public function count() {
-        
+
         if (Auth::user()->id_role == 2) {
 
             return Sale::count()->where('id_storage', '1')->where('status','1');
@@ -237,7 +237,7 @@ class SaleController extends Controller
                     ], 400);
                 }
             }
-    
+
             if (Auth::user()->id_role == 3) {
                 if ($sale->id_storage !='2') {
                     return response()->json([
@@ -350,14 +350,16 @@ class SaleController extends Controller
         }
 
         $Sale = Sale::where('status', 1)->where('date', $request->date)->where('id_storage', $id_storage)->get();
-        if ($Sale == null) {
+        $storage = Storage::findOrFail($id_storage);
+        if ($Sale == null || $Sale->count() == 0) {
             return response()->json([
                 'message' => 'No existe una venta con esta fecha',
             ], 400);
         }
         $data = array(
             'sale' => $Sale,
-            'fecha' => $request->date
+            'fecha' => $request->date,
+            'storage' => $storage
         );
 
         $filename = 'Venta_' . date('d-m-Y', strtotime($request->date)) . '.pdf';//nombre del archivo que el usuario descarga
@@ -390,7 +392,8 @@ class SaleController extends Controller
         }
 
         $Sale = Sale::where('status', 1)->whereBetween('date', $request->date)->where('id_storage', $id_storage)->orderBy('date')->get();
-        if ($Sale == null|| $Sale->count() == 0) {
+        $storage = Storage::findOrFail($id_storage);
+        if ($Sale == null || $Sale->count() == 0) {
             return response()->json([
                 'message' => 'No existe ventas con ese rango de fechas'
             ], 400);
@@ -398,7 +401,8 @@ class SaleController extends Controller
         $data = array(
             'sale' => $Sale,
             'fecha_inicio' => $request->date[0],
-            'fecha_fin' => $request->date[1]
+            'fecha_fin' => $request->date[1],
+            'storage' => $storage
         );
 
         $filename = 'Venta_Rango_' . date('d-m-Y', strtotime($request->date[0])) . '_a_' . date('d-m-Y', strtotime($request->date[1])) . '.pdf'; //nombre del archivo que el usuario descarga
@@ -432,8 +436,8 @@ class SaleController extends Controller
 
         $year = date("Y");
         $Sale = Sale::where('status', 1)->whereMonth('date', $request->date)->whereYear('date', $year)->where('id_storage', $id_storage)->orderBy('date')->get();
-
-        if ($Sale == null) {
+        $storage = Storage::findOrFail($id_storage);
+        if ($Sale == null || $Sale->count() == 0) {
             return response()->json([
                 'message' => 'No existe ventas en ese mes'
             ], 400);
@@ -442,62 +446,62 @@ class SaleController extends Controller
         switch ($request->date) {
             case '01':
                 $data = array(
-                    'purchase' => $Sale, 'mes' => $request->date = 'ENERO', 'ano' => $year
+                    'purchase' => $Sale, 'mes' => $request->date = 'ENERO', 'ano' => $year, 'storage' => $storage
                 );
                 break;
             case '02':
                 $data = array(
-                    'purchase' => $Sale, 'mes' => $request->date = 'FEBRERO', 'ano' => $year
+                    'purchase' => $Sale, 'mes' => $request->date = 'FEBRERO', 'ano' => $year, 'storage' => $storage
                 );
                 break;
             case '03':
                 $data = array(
-                    'purchase' => $Sale, 'mes' => $request->date = 'MARZO', 'ano' => $year
+                    'purchase' => $Sale, 'mes' => $request->date = 'MARZO', 'ano' => $year, 'storage' => $storage
                 );
                 break;
             case '04':
                 $data = array(
-                    'purchase' => $Sale, 'mes' => $request->date = 'ABRIL', 'ano' => $year
+                    'purchase' => $Sale, 'mes' => $request->date = 'ABRIL', 'ano' => $year, 'storage' => $storage
                 );
                 break;
             case '05':
                 $data = array(
-                    'purchase' => $Sale, 'mes' => $request->date = 'MAYO', 'ano' => $year
+                    'purchase' => $Sale, 'mes' => $request->date = 'MAYO', 'ano' => $year, 'storage' => $storage
                 );
                 break;
             case '06':
                 $data = array(
-                    'purchase' => $Sale, 'mes' => $request->date = 'JUNIO', 'ano' => $year
+                    'purchase' => $Sale, 'mes' => $request->date = 'JUNIO', 'ano' => $year, 'storage' => $storage
                 );
                 break;
             case '07':
                 $data = array(
-                    'purchase' => $Sale, 'mes' => $request->date = 'JULIO', 'ano' => $year
+                    'purchase' => $Sale, 'mes' => $request->date = 'JULIO', 'ano' => $year, 'storage' => $storage
                 );
                 break;
             case '08':
                 $data = array(
-                    'purchase' => $Sale, 'mes' => $request->date = 'AGOSTO', 'ano' => $year
+                    'purchase' => $Sale, 'mes' => $request->date = 'AGOSTO', 'ano' => $year, 'storage' => $storage
                 );
                 break;
             case '09':
                 $data = array(
-                    'purchase' => $Sale, 'mes' => $request->date = 'SEPTIEMBRE', 'ano' => $year
+                    'purchase' => $Sale, 'mes' => $request->date = 'SEPTIEMBRE', 'ano' => $year, 'storage' => $storage
                 );
                 break;
             case '10':
                 $data = array(
-                    'purchase' => $Sale, 'mes' => $request->date = 'OCTUBRE', 'ano' => $year
+                    'purchase' => $Sale, 'mes' => $request->date = 'OCTUBRE', 'ano' => $year, 'storage' => $storage
                 );
                 break;
             case '11':
                 $data = array(
-                    'purchase' => $Sale, 'mes' => $request->date = 'NOVIEMBRE', 'ano' => $year
+                    'purchase' => $Sale, 'mes' => $request->date = 'NOVIEMBRE', 'ano' => $year, 'storage' => $storage
                 );
                 break;
             case '12':
                 $data = array(
-                    'purchase' => $Sale, 'mes' => $request->date = 'DICIEMBRE', 'ano' => $year
+                    'purchase' => $Sale, 'mes' => $request->date = 'DICIEMBRE', 'ano' => $year, 'storage' => $storage
                 );
                 break;
         }
@@ -530,14 +534,14 @@ class SaleController extends Controller
             $Sale = Sale::findOrFail($id); //busca o falla
             $detail = SaleDetail::where('status', 1)->where('id_sale', $Sale->id_sale)->get();
 
-            $worksheet->getCell('G10')->setValue(date('d/m/Y', strtotime($Sale->date)));
-            $worksheet->getCell('G11')->setValue($Sale->type_doc);
-            $worksheet->getCell('G12')->setValue($Sale->number_doc);
-            $worksheet->getCell('G13')->setValue($Sale->observation);
-            $worksheet->getCell('G14')->setValue($Sale->client->name);
-            $worksheet->getCell('G15')->setValue($Sale->storage->name);
+            $worksheet->getCell('G8')->setValue(date('d/m/Y', strtotime($Sale->date)));
+            $worksheet->getCell('G9')->setValue($Sale->type_doc);
+            $worksheet->getCell('G10')->setValue($Sale->number_doc);
+            $worksheet->getCell('G11')->setValue($Sale->observation);
+            $worksheet->getCell('G12')->setValue($Sale->client->name);
+            $worksheet->getCell('G13')->setValue($Sale->storage->name);
 
-            $cell = 18;
+            $cell = 16;
             foreach ($detail as $sd) {
                 $worksheet->getCell('B'.$cell)->setValue($sd->product->name);
                 $worksheet->getCell('D'.$cell)->setValue($sd->quantity);
@@ -587,43 +591,45 @@ class SaleController extends Controller
             if(Auth::user()->id_role==2){
                 $id_storage=1;
             }
-    
+
             if(Auth::user()->id_role==3){
                 $id_storage=2;
             }
-    
+
             if(Auth::user()->id_role==1){
                 $id_storage=$request->id_storage;
             }
-    
+
 
             $Sale = Sale::where('status', 1)->where('date', $request->date)->where('id_storage', $id_storage)->get();
-            if ($Sale == null) {
+            $storage = Storage::findOrFail($id_storage);
+            if ($Sale == null || $Sale->count() == 0) {
                 return response()->json([
                     'message' => 'No existe una venta con esa fecha'
                 ], 400);
             }
 
-            $worksheet->getCell('B9')->setValue('REPORTE DE VENTAS DEL DÍA '.date('d/m/Y', strtotime($request->date)));
+            $worksheet->getCell('B7')->setValue('VENTAS DEL DÍA '.date('d/m/Y', strtotime($request->date)).' ('.$storage->name.')');
 
             $x = 0;
-            $cell = 11;
+            $cell = 9;
             foreach ($Sale as $sale) {
                 $worksheet->getCell('B'.$cell)->setValue(date('d/m/Y', strtotime($sale->date)));
                 $worksheet->getCell('C'.$cell)->setValue($sale->type_doc);
                 $worksheet->getCell('D'.$cell)->setValue($sale->number_doc);
                 $worksheet->getCell('E'.$cell)->setValue($sale->observation);
                 $worksheet->getCell('F'.$cell)->setValue($sale->client->name);
-                $worksheet->getCell('G'.$cell)->setValue($sale->storage->name);
-                $worksheet->getCell('H'.$cell)->setValue($sale->discount);
-                $worksheet->getCell('I'.$cell)->setValue($sale->total);
+                $worksheet->getCell('G'.$cell)->setValue($sale->discount);
+                $worksheet->getCell('H'.$cell)->setValue($sale->igv);
+                $worksheet->getCell('I'.$cell)->setValue($sale->subtotal);
+                $worksheet->getCell('J'.$cell)->setValue($sale->total);
 
                 $cell = $cell + 1;
                 $x = $x + $sale->total;
             }
 
-            $worksheet->getCell('H'.$cell)->setValue('TOTAL');
-            $worksheet->getCell('I'.$cell)->setValue(sprintf('%.2f',round($x,2)));
+            $worksheet->getCell('I'.$cell)->setValue('TOTAL');
+            $worksheet->getCell('J'.$cell)->setValue(sprintf('%.2f',round($x,2)));
 
             $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
             $writer->save("storage/sales/Venta_" . date('d-m-Y', strtotime($request->date)) . '.xlsx'); //la salida
@@ -655,44 +661,45 @@ class SaleController extends Controller
             if(Auth::user()->id_role==2){
                 $id_storage=1;
             }
-    
+
             if(Auth::user()->id_role==3){
                 $id_storage=2;
             }
-    
+
             if(Auth::user()->id_role==1){
                 $id_storage=$request->id_storage;
             }
-    
+
 
             $Sale = Sale::where('status', 1)->whereBetween('date', $request->date)->where('id_storage', $id_storage)->orderBy('date')->get();
-
+            $storage = Storage::findOrFail($id_storage);
             if ($Sale == null || $Sale->count() == 0) {
                 return response()->json([
                     'message' => 'No existe ventas con ese rango de fechas'
                 ], 400);
             }
 
-            $worksheet->getCell('B9')->setValue('REPORTE DE VENTAS DEL '.date('d/m/Y', strtotime($request->date[0])).' AL '.date('d/m/Y', strtotime($request->date[1])));
+            $worksheet->getCell('B7')->setValue('VENTAS ENTRE FECHAS '.date('d/m/Y', strtotime($request->date[0])).' - '.date('d/m/Y', strtotime($request->date[1])).' ('.$storage->name.')');
 
             $x = 0;
-            $cell = 11;
+            $cell = 9;
             foreach ($Sale as $sale) {
                 $worksheet->getCell('B'.$cell)->setValue(date('d/m/Y', strtotime($sale->date)));
                 $worksheet->getCell('C'.$cell)->setValue($sale->type_doc);
                 $worksheet->getCell('D'.$cell)->setValue($sale->number_doc);
                 $worksheet->getCell('E'.$cell)->setValue($sale->observation);
                 $worksheet->getCell('F'.$cell)->setValue($sale->client->name);
-                $worksheet->getCell('G'.$cell)->setValue($sale->storage->name);
-                $worksheet->getCell('H'.$cell)->setValue($sale->discount);
-                $worksheet->getCell('I'.$cell)->setValue($sale->total);
+                $worksheet->getCell('G'.$cell)->setValue($sale->discount);
+                $worksheet->getCell('H'.$cell)->setValue($sale->igv);
+                $worksheet->getCell('I'.$cell)->setValue($sale->subtotal);
+                $worksheet->getCell('J'.$cell)->setValue($sale->total);
 
                 $cell = $cell + 1;
                 $x = $x + $sale->total;
             }
 
-            $worksheet->getCell('H'.$cell)->setValue('TOTAL');
-            $worksheet->getCell('I'.$cell)->setValue(sprintf('%.2f',round($x,2)));
+            $worksheet->getCell('I'.$cell)->setValue('TOTAL');
+            $worksheet->getCell('J'.$cell)->setValue(sprintf('%.2f',round($x,2)));
 
             $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
             $writer->save("storage/sales/Venta_Rango_" . date('d-m-Y', strtotime($request->date[0])) . '_a_' . date('d-m-Y', strtotime($request->date[1])) . '.xlsx');
@@ -723,19 +730,19 @@ class SaleController extends Controller
             if(Auth::user()->id_role==2){
                 $id_storage=1;
             }
-    
+
             if(Auth::user()->id_role==3){
                 $id_storage=2;
             }
-    
+
             if(Auth::user()->id_role==1){
                 $id_storage=$request->id_storage;
             }
 
             $year = date("Y");
             $Sale = Sale::where('status', 1)->whereMonth('date', $request->date)->whereYear('date', $year)->where('id_storage', $id_storage)->orderBy('date')->get();
-
-            if ($Sale == null) {
+            $storage = Storage::findOrFail($id_storage);
+            if ($Sale == null || $Sale->count() == 0) {
                 return response()->json([
                     'message' => 'No existe ventas en ese mes'
                 ], 400);
@@ -779,26 +786,27 @@ class SaleController extends Controller
                     break;
             }
 
-            $worksheet->getCell('B9')->setValue('REPORTE DE VENTAS POR EL MES DE '.date('d/m/Y', strtotime($request->date)).' DEl '.$year);
+            $worksheet->getCell('B7')->setValue('VENTAS DEL MES DE '.$request->date.' DEl '.$year.' ('.$storage->name.')');
 
             $x = 0;
-            $cell = 11;
+            $cell = 9;
             foreach ($Sale as $sale) {
                 $worksheet->getCell('B'.$cell)->setValue(date('d/m/Y', strtotime($sale->date)));
                 $worksheet->getCell('C'.$cell)->setValue($sale->type_doc);
                 $worksheet->getCell('D'.$cell)->setValue($sale->number_doc);
                 $worksheet->getCell('E'.$cell)->setValue($sale->observation);
                 $worksheet->getCell('F'.$cell)->setValue($sale->client->name);
-                $worksheet->getCell('G'.$cell)->setValue($sale->storage->name);
-                $worksheet->getCell('H'.$cell)->setValue($sale->discount);
-                $worksheet->getCell('I'.$cell)->setValue($sale->total);
+                $worksheet->getCell('G'.$cell)->setValue($sale->discount);
+                $worksheet->getCell('H'.$cell)->setValue($sale->igv);
+                $worksheet->getCell('I'.$cell)->setValue($sale->subtotal);
+                $worksheet->getCell('J'.$cell)->setValue($sale->total);
 
                 $cell = $cell + 1;
                 $x = $x + $sale->total;
             }
 
-            $worksheet->getCell('H'.$cell)->setValue('TOTAL');
-            $worksheet->getCell('I'.$cell)->setValue(sprintf('%.2f',round($x,2)));
+            $worksheet->getCell('I'.$cell)->setValue('TOTAL');
+            $worksheet->getCell('J'.$cell)->setValue(sprintf('%.2f',round($x,2)));
 
             $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
             $writer->save("storage/sales/Venta_Mes_" . $request->date . '-' . $year . '.xlsx');
@@ -814,5 +822,10 @@ class SaleController extends Controller
                 'message' => 'Excepcion ' . $e->getMessage()
             ],  500);
         }
+    }
+
+    public function totalForMonth() {
+        $year = date("Y");
+        return Sale::groupBy(DB::raw('month(date)'))->where('status', 1)->whereYear('date', $year)->sum('total');
     }
 }

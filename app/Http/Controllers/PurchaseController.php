@@ -37,10 +37,10 @@ class PurchaseController extends Controller
             return ResourcesPurchase::collection(Purchase::get());
         }
 
-       
+
     }
     public function count() {
-        
+
         if (Auth::user()->id_role == 2) {
 
             return Purchase::count()->where('id_storage', '1')->where('status','1');
@@ -206,7 +206,7 @@ class PurchaseController extends Controller
     {
 
 
-        
+
         try {
             /*
             return response()->json([
@@ -344,14 +344,16 @@ class PurchaseController extends Controller
         }
 
         $Purchase = Purchase::where('status', 1)->where('date', $request->date)->where('id_storage', $id_storage)->get();
-        if ($Purchase == null) {
+        $storage = Storage::findOrFail($id_storage);
+        if ($Purchase == null || $Purchase->count() == 0) {
             return response()->json([
                 'message' => 'No existe una compra con esa fecha'
             ], 400);
         }
         $data = array(
             'purchase' => $Purchase,
-            'fecha' => $request->date
+            'fecha' => $request->date,
+            'storage' => $storage
         );
 
         $filename = 'Compra_' . date('d-m-Y', strtotime($request->date)) . '.pdf'; //nombre del archivo que el usuario descarga
@@ -384,7 +386,7 @@ class PurchaseController extends Controller
 
         $Purchase = Purchase::where('status', 1)->whereBetween('date', $request->date)->where('id_storage', $id_storage)
         ->orderBy('date')->get();
-
+        $storage = Storage::findOrFail($id_storage);
         if ($Purchase == null || $Purchase->count() == 0) {
             return response()->json([
                 'message' => 'No existe compras con ese rango de fechas'
@@ -393,7 +395,8 @@ class PurchaseController extends Controller
         $data = array(
             'purchase' => $Purchase,
             'fecha_inicio' => $request->date[0],
-            'fecha_fin' => $request->date[1]
+            'fecha_fin' => $request->date[1],
+            'storage' => $storage
         );
 
         $filename = 'Compra_Rango_' . date('d-m-Y', strtotime($request->date[0])) . '_a_' . date('d-m-Y', strtotime($request->date[1])) . '.pdf'; //nombre del archivo que el usuario descarga
@@ -427,8 +430,8 @@ class PurchaseController extends Controller
         $year = date("Y");
         $Purchase = Purchase::where('status', 1)->whereMonth('date', $request->date)->whereYear('date', $year)->where('id_storage', $id_storage)
         ->orderBy('date')->get();
-
-        if ($Purchase == null) {
+        $storage = Storage::findOrFail($id_storage);
+        if ($Purchase == null || $Purchase->count() == 0) {
             return response()->json([
                 'message' => 'No existe compras en ese mes'
             ], 400);
@@ -437,62 +440,62 @@ class PurchaseController extends Controller
         switch ($request->date) {
             case '01':
                 $data = array(
-                    'purchase' => $Purchase, 'mes' => $request->date = 'ENERO', 'ano' => $year
+                    'purchase' => $Purchase, 'mes' => $request->date = 'ENERO', 'ano' => $year, 'storage' => $storage
                 );
                 break;
             case '02':
                 $data = array(
-                    'purchase' => $Purchase, 'mes' => $request->date = 'FEBRERO', 'ano' => $year
+                    'purchase' => $Purchase, 'mes' => $request->date = 'FEBRERO', 'ano' => $year, 'storage' => $storage
                 );
                 break;
             case '03':
                 $data = array(
-                    'purchase' => $Purchase, 'mes' => $request->date = 'MARZO', 'ano' => $year
+                    'purchase' => $Purchase, 'mes' => $request->date = 'MARZO', 'ano' => $year, 'storage' => $storage
                 );
                 break;
             case '04':
                 $data = array(
-                    'purchase' => $Purchase, 'mes' => $request->date = 'ABRIL', 'ano' => $year
+                    'purchase' => $Purchase, 'mes' => $request->date = 'ABRIL', 'ano' => $year, 'storage' => $storage
                 );
                 break;
             case '05':
                 $data = array(
-                    'purchase' => $Purchase, 'mes' => $request->date = 'MAYO', 'ano' => $year
+                    'purchase' => $Purchase, 'mes' => $request->date = 'MAYO', 'ano' => $year, 'storage' => $storage
                 );
                 break;
             case '06':
                 $data = array(
-                    'purchase' => $Purchase, 'mes' => $request->date = 'JUNIO', 'ano' => $year
+                    'purchase' => $Purchase, 'mes' => $request->date = 'JUNIO', 'ano' => $year, 'storage' => $storage
                 );
                 break;
             case '07':
                 $data = array(
-                    'purchase' => $Purchase, 'mes' => $request->date = 'JULIO', 'ano' => $year
+                    'purchase' => $Purchase, 'mes' => $request->date = 'JULIO', 'ano' => $year, 'storage' => $storage
                 );
                 break;
             case '08':
                 $data = array(
-                    'purchase' => $Purchase, 'mes' => $request->date = 'AGOSTO', 'ano' => $year
+                    'purchase' => $Purchase, 'mes' => $request->date = 'AGOSTO', 'ano' => $year, 'storage' => $storage
                 );
                 break;
             case '09':
                 $data = array(
-                    'purchase' => $Purchase, 'mes' => $request->date = 'SEPTIEMBRE', 'ano' => $year
+                    'purchase' => $Purchase, 'mes' => $request->date = 'SEPTIEMBRE', 'ano' => $year, 'storage' => $storage
                 );
                 break;
             case '10':
                 $data = array(
-                    'purchase' => $Purchase, 'mes' => $request->date = 'OCTUBRE', 'ano' => $year
+                    'purchase' => $Purchase, 'mes' => $request->date = 'OCTUBRE', 'ano' => $year, 'storage' => $storage
                 );
                 break;
             case '11':
                 $data = array(
-                    'purchase' => $Purchase, 'mes' => $request->date = 'NOVIEMBRE', 'ano' => $year
+                    'purchase' => $Purchase, 'mes' => $request->date = 'NOVIEMBRE', 'ano' => $year, 'storage' => $storage
                 );
                 break;
             case '12':
                 $data = array(
-                    'purchase' => $Purchase, 'mes' => $request->date = 'DICIEMBRE', 'ano' => $year
+                    'purchase' => $Purchase, 'mes' => $request->date = 'DICIEMBRE', 'ano' => $year, 'storage' => $storage
                 );
                 break;
         }
@@ -526,14 +529,14 @@ class PurchaseController extends Controller
             $Purchase = Purchase::findOrFail($id); //busca o falla
             $detail = PurchaseDetail::where('status', 1)->where('id_purchase', $Purchase->id_purchase)->get();
 
-            $worksheet->getCell('F10')->setValue(date('d/m/Y', strtotime($Purchase->date)));
-            $worksheet->getCell('F11')->setValue($Purchase->type_doc);
-            $worksheet->getCell('F12')->setValue($Purchase->number_doc);
-            $worksheet->getCell('F13')->setValue($Purchase->observation);
-            $worksheet->getCell('F14')->setValue($Purchase->provider->name);
-            $worksheet->getCell('F15')->setValue($Purchase->storage->name);
+            $worksheet->getCell('F8')->setValue(date('d/m/Y', strtotime($Purchase->date)));
+            $worksheet->getCell('F9')->setValue($Purchase->type_doc);
+            $worksheet->getCell('F10')->setValue($Purchase->number_doc);
+            $worksheet->getCell('F11')->setValue($Purchase->observation);
+            $worksheet->getCell('F12')->setValue($Purchase->provider->name);
+            $worksheet->getCell('F13')->setValue($Purchase->storage->name);
 
-            $cell = 18;
+            $cell = 16;
             foreach ($detail as $pd) {
                 $worksheet->getCell('B' . $cell)->setValue($pd->product->name);
                 $worksheet->getCell('D' . $cell)->setValue($pd->quantity);
@@ -582,41 +585,41 @@ class PurchaseController extends Controller
             if(Auth::user()->id_role==2){
                 $id_storage=1;
             }
-    
+
             if(Auth::user()->id_role==3){
                 $id_storage=2;
             }
-    
+
             if(Auth::user()->id_role==1){
                 $id_storage=$request->id_storage;
             }
 
             $Purchase = Purchase::where('status', 1)->where('date', $request->date)->where('id_storage', $id_storage)->get();
-            if ($Purchase == null) {
+            $storage = Storage::findOrFail($id_storage);
+            if ($Purchase == null || $Purchase->count() == 0) {
                 return response()->json([
                     'message' => 'No existe una compra con esa fecha'
                 ], 400);
             }
 
-            $worksheet->getCell('B9')->setValue('REPORTE DE COMPRAS DEL DÍA '.date('d/m/Y', strtotime($request->date)));
+            $worksheet->getCell('B7')->setValue('COMPRAS DEL DÍA '.date('d/m/Y', strtotime($request->date)).' ('.$storage->name.')');
 
             $x = 0;
-            $cell = 11;
+            $cell = 9;
             foreach ($Purchase as $purchase) {
                 $worksheet->getCell('B' . $cell)->setValue(date('d/m/Y', strtotime($purchase->date)));
                 $worksheet->getCell('C' . $cell)->setValue($purchase->type_doc);
                 $worksheet->getCell('D' . $cell)->setValue($purchase->number_doc);
                 $worksheet->getCell('E' . $cell)->setValue($purchase->observation);
                 $worksheet->getCell('F' . $cell)->setValue($purchase->provider->name);
-                $worksheet->getCell('G' . $cell)->setValue($purchase->storage->name);
-                $worksheet->getCell('H' . $cell)->setValue($purchase->total);
+                $worksheet->getCell('G' . $cell)->setValue($purchase->total);
 
                 $cell = $cell + 1;
                 $x = $x + $purchase->total;
             }
 
-            $worksheet->getCell('G' . $cell)->setValue('TOTAL');
-            $worksheet->getCell('H' . $cell)->setValue(sprintf('%.2f', round($x, 2)));
+            $worksheet->getCell('F' . $cell)->setValue('TOTAL');
+            $worksheet->getCell('G' . $cell)->setValue(sprintf('%.2f', round($x, 2)));
 
             $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
             $writer->save("storage/purchases/Compra_" . date('d-m-Y', strtotime($request->date)) . '.xlsx'); //la salida
@@ -647,41 +650,40 @@ class PurchaseController extends Controller
             if(Auth::user()->id_role==2){
                 $id_storage=1;
             }
-    
+
             if(Auth::user()->id_role==3){
                 $id_storage=2;
             }
-    
+
             if(Auth::user()->id_role==1){
                 $id_storage=$request->id_storage;
             }
             $Purchase = Purchase::where('status', 1)->whereBetween('date', $request->date)->where('id_storage', $id_storage)->orderBy('date')->get();
-
+            $storage = Storage::findOrFail($id_storage);
             if ($Purchase == null || $Purchase->count() == 0) {
                 return response()->json([
                     'message' => 'No existe compras con ese rango de fechas'
                 ], 400);
             }
 
-            $worksheet->getCell('B9')->setValue('REPORTE DE COMPRAS DEL '.date('d/m/Y', strtotime($request->date[0])).' AL '.date('d/m/Y', strtotime($request->date[1])));
+            $worksheet->getCell('B7')->setValue('COMPRAS ENTRE FECHAS '.date('d/m/Y', strtotime($request->date[0])).' - '.date('d/m/Y', strtotime($request->date[1])).' ('.$storage->name.')');
 
             $x = 0;
-            $cell = 11;
+            $cell = 9;
             foreach ($Purchase as $purchase) {
                 $worksheet->getCell('B' . $cell)->setValue(date('d/m/Y', strtotime($purchase->date)));
                 $worksheet->getCell('C' . $cell)->setValue($purchase->type_doc);
                 $worksheet->getCell('D' . $cell)->setValue($purchase->number_doc);
                 $worksheet->getCell('E' . $cell)->setValue($purchase->observation);
                 $worksheet->getCell('F' . $cell)->setValue($purchase->provider->name);
-                $worksheet->getCell('G' . $cell)->setValue($purchase->storage->name);
-                $worksheet->getCell('H' . $cell)->setValue($purchase->total);
+                $worksheet->getCell('G' . $cell)->setValue($purchase->total);
 
                 $cell = $cell + 1;
                 $x = $x + $purchase->total;
             }
 
-            $worksheet->getCell('G' . $cell)->setValue('TOTAL');
-            $worksheet->getCell('H' . $cell)->setValue(sprintf('%.2f', round($x, 2)));
+            $worksheet->getCell('F' . $cell)->setValue('TOTAL');
+            $worksheet->getCell('G' . $cell)->setValue(sprintf('%.2f', round($x, 2)));
 
             $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
             $writer->save("storage/purchases/Compra_Rango_" . date('d-m-Y', strtotime($request->date[0])) . '_a_' . date('d-m-Y', strtotime($request->date[1])) . '.xlsx');
@@ -712,19 +714,19 @@ class PurchaseController extends Controller
             if(Auth::user()->id_role==2){
                 $id_storage=1;
             }
-    
+
             if(Auth::user()->id_role==3){
                 $id_storage=2;
             }
-    
+
             if(Auth::user()->id_role==1){
                 $id_storage=$request->id_storage;
             }
 
             $year = date("Y");
             $Purchase = Purchase::where('status', 1)->whereMonth('date', $request->date)->whereYear('date', $year)->where('id_storage', $id_storage)->orderBy('date')->get();
-
-            if ($Purchase == null) {
+            $storage = Storage::findOrFail($id_storage);
+            if ($Purchase == null || $Purchase->count() == 0) {
                 return response()->json([
                     'message' => 'No existe compras en ese mes'
                 ], 400);
@@ -768,25 +770,24 @@ class PurchaseController extends Controller
                     break;
             }
 
-            $worksheet->getCell('B9')->setValue('REPORTE DE COMPRAS POR EL MES DE '.date('d/m/Y', strtotime($request->date)).' DEl '.$year);
+            $worksheet->getCell('B7')->setValue('COMPRAS DEL MES DE '.$request->date.' DEl '.$year.' ('.$storage->name.')');
 
             $x = 0;
-            $cell = 11;
+            $cell = 9;
             foreach ($Purchase as $purchase) {
                 $worksheet->getCell('B' . $cell)->setValue(date('d/m/Y', strtotime($purchase->date)));
                 $worksheet->getCell('C' . $cell)->setValue($purchase->type_doc);
                 $worksheet->getCell('D' . $cell)->setValue($purchase->number_doc);
                 $worksheet->getCell('E' . $cell)->setValue($purchase->observation);
                 $worksheet->getCell('F' . $cell)->setValue($purchase->provider->name);
-                $worksheet->getCell('G' . $cell)->setValue($purchase->storage->name);
-                $worksheet->getCell('H' . $cell)->setValue($purchase->total);
+                $worksheet->getCell('G' . $cell)->setValue($purchase->total);
 
                 $cell = $cell + 1;
                 $x = $x + $purchase->total;
             }
 
-            $worksheet->getCell('G' . $cell)->setValue('TOTAL');
-            $worksheet->getCell('H' . $cell)->setValue(sprintf('%.2f', round($x, 2)));
+            $worksheet->getCell('F' . $cell)->setValue('TOTAL');
+            $worksheet->getCell('G' . $cell)->setValue(sprintf('%.2f', round($x, 2)));
 
             $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
             $writer->save("storage/purchases/Compra_Mes_" . $request->date . '-' . $year . '.xlsx');
@@ -801,5 +802,10 @@ class PurchaseController extends Controller
                 'message' => 'Excepcion ' . $e->getMessage()
             ],  500);
         }
+    }
+
+    public function totalForMonth() {
+        $year = date("Y");
+        return Purchase::groupBy(DB::raw('month(date)'))->where('status', 1)->whereYear('date', $year)->sum('total');
     }
 }

@@ -15,13 +15,13 @@ class Lot extends JsonResource
     public function toArray($request)
     {
         return [
-            'id_lot'=>$this->id_lot,
             'quantity'=>htmlspecialchars($this->quantity),
-            'id_product'=>$this->id_product,
+
             'product_name'=>htmlspecialchars($this->product->name),
-            'id_storage'=>$this->id_storage,
+            'category_name'=>htmlspecialchars($this->product->category->name),
+
             'storage_name'=>htmlspecialchars($this->storage->name),
-            //'purchases_detail'=>PurchaseDetail::collection($this->purchases_detail),
+
             'status'=>$this->status
         ];
     }

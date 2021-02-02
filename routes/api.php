@@ -57,7 +57,7 @@ Route::group([
         Route::get('products', 'ProductController@index');
 
         Route::post('prueba', 'AuthController@prueba');
-        Route::get('lots/list', 'LotController@list');
+        Route::post('lots/list', 'LotController@list');
         Route::get('clients/list', 'ClientController@list');
         Route::apiResource('clients', 'ClientController');
         Route::apiResource('lots', 'LotController');
@@ -87,8 +87,10 @@ Route::group([
         Route::get('purchases/count', 'PurchaseController@count');
         Route::get('sales/count', 'SaleController@count');
 
+        Route::post('purchases/totalForMonth', 'PurchaseController@totalForMonth');
+        Route::post('sales/totalForMonth', 'SaleController@totalForMonth');
 
-       
+
     });
 });
 

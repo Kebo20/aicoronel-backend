@@ -15,8 +15,6 @@ class ProviderController extends Controller
     }
 
     public function count(Request $request) {
-       
-
         return Provider::count()->where('status','1');
     }
 

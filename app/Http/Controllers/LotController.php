@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\Lot as ResourcesLot;
 use App\Lot;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class LotController extends Controller
@@ -84,6 +85,17 @@ class LotController extends Controller
     }
 
     public function list(Request $request) {
-        return ResourcesLot::collection(Lot::where("quantity", "like", "%".$request->search."%")->get());
+        if (Auth::user()->id_role == 2) {
+            $id_storage = 1;
+        }
+
+        if (Auth::user()->id_role == 3) {
+            $id_storage = 2;
+        }
+
+        if (Auth::user()->id_role == 1) {
+            $id_storage = $request->id_storage;
+        }
+        return ResourcesLot::collection(Lot::where('status', 1)->where('id_storage', $id_storage)->get());
     }
 }
