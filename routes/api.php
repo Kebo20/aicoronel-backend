@@ -82,10 +82,10 @@ Route::group([
         Route::post('sales/exportForMonth', 'SaleController@exportForMonth');
 
 
-        Route::get('providers/count', 'ProviderController@count');
-        Route::get('clients/count', 'ClientController@count');
-        Route::get('purchases/count', 'PurchaseController@count');
-        Route::get('sales/count', 'SaleController@count');
+        Route::post('providers/count', 'ProviderController@count');
+        Route::post('clients/count', 'ClientController@count');
+        Route::post('purchases/count', 'PurchaseController@count');
+        Route::post('sales/count', 'SaleController@count');
 
         Route::post('purchases/totalForMonth', 'PurchaseController@totalForMonth');
         Route::post('sales/totalForMonth', 'SaleController@totalForMonth');

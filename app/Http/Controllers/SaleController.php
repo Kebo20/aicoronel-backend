@@ -23,35 +23,33 @@ class SaleController extends Controller
 
     public function index()
     {
-        if(Auth::user()->id_role==2){
-            return ResourcesSale::collection(Sale::where('id_storage','1')->get());
-
+        if (Auth::user()->id_role == 2) {
+            return ResourcesSale::collection(Sale::where('id_storage', '1')->get());
         }
-        if(Auth::user()->id_role==3){
-            return ResourcesSale::collection(Sale::where('id_storage','2')->get());
+        if (Auth::user()->id_role == 3) {
+            return ResourcesSale::collection(Sale::where('id_storage', '2')->get());
         }
 
-        if(Auth::user()->id_role==1){
+        if (Auth::user()->id_role == 1) {
             return ResourcesSale::collection(Sale::get());
         }
-
     }
 
-    public function count() {
-
+    public function count()
+    {
         if (Auth::user()->id_role == 2) {
 
-            return Sale::count()->where('id_storage', '1')->where('status','1');
+            return Sale::where('id_storage', '1')->where('status', '1')->count();
         }
 
         if (Auth::user()->id_role == 3) {
 
-            return Sale::count()->where('id_storage', '2')->where('status','1');
+            return Sale::where('id_storage', '2')->where('status', '1')->count();
         }
 
         if (Auth::user()->id_role == 1) {
 
-            return Sale::count()->where('status','1');
+            return Sale::where('status', '1')->count();
         }
     }
     public function store(Request $request)
@@ -62,7 +60,7 @@ class SaleController extends Controller
                 'type_doc' => 'required',
                 'number_doc' => 'required',
                 'id_client' => 'required',
-               // 'id_storage' => 'required'
+                // 'id_storage' => 'required'
             ]);
 
             if ($request->details == null || $request->details == []) {
@@ -78,16 +76,16 @@ class SaleController extends Controller
                 ], 400);
             }
 
-            if(Auth::user()->id_role==2){
-                $id_storage=1;
+            if (Auth::user()->id_role == 2) {
+                $id_storage = 1;
             }
 
-            if(Auth::user()->id_role==3){
-                $id_storage=2;
+            if (Auth::user()->id_role == 3) {
+                $id_storage = 2;
             }
 
-            if(Auth::user()->id_role==1){
-                $id_storage=$request->id_storage;
+            if (Auth::user()->id_role == 1) {
+                $id_storage = $request->id_storage;
             }
 
             DB::beginTransaction();
@@ -231,7 +229,7 @@ class SaleController extends Controller
             }
 
             if (Auth::user()->id_role == 2) {
-                if ($sale->id_storage !='1') {
+                if ($sale->id_storage != '1') {
                     return response()->json([
                         'message' => 'No puede anular la venta de esta tienda'
                     ], 400);
@@ -239,7 +237,7 @@ class SaleController extends Controller
             }
 
             if (Auth::user()->id_role == 3) {
-                if ($sale->id_storage !='2') {
+                if ($sale->id_storage != '2') {
                     return response()->json([
                         'message' => 'No puede anular la venta de esta tienda'
                     ], 400);
@@ -337,16 +335,16 @@ class SaleController extends Controller
         $validatedData = $request->validate([
             'date' => 'required'
         ]);
-        if(Auth::user()->id_role==2){
-            $id_storage=1;
+        if (Auth::user()->id_role == 2) {
+            $id_storage = 1;
         }
 
-        if(Auth::user()->id_role==3){
-            $id_storage=2;
+        if (Auth::user()->id_role == 3) {
+            $id_storage = 2;
         }
 
-        if(Auth::user()->id_role==1){
-            $id_storage=$request->id_storage;
+        if (Auth::user()->id_role == 1) {
+            $id_storage = $request->id_storage;
         }
 
         $Sale = Sale::where('status', 1)->where('date', $request->date)->where('id_storage', $id_storage)->get();
@@ -362,7 +360,7 @@ class SaleController extends Controller
             'storage' => $storage
         );
 
-        $filename = 'Venta_' . date('d-m-Y', strtotime($request->date)) . '.pdf';//nombre del archivo que el usuario descarga
+        $filename = 'Venta_' . date('d-m-Y', strtotime($request->date)) . '.pdf'; //nombre del archivo que el usuario descarga
         $pdf = PDF::setOptions(['logOutputFile' => storage_path('logs/pdf.log'), 'tempDir' => storage_path('logs/')])->loadView('pdf.saleadate', compact('data'))->save("storage/sales/" . $filename); //se guarda el archivo
 
         $url = Storage2::url('sales/' . $filename);
@@ -379,16 +377,16 @@ class SaleController extends Controller
             'date' => 'required'
         ]);
 
-        if(Auth::user()->id_role==2){
-            $id_storage=1;
+        if (Auth::user()->id_role == 2) {
+            $id_storage = 1;
         }
 
-        if(Auth::user()->id_role==3){
-            $id_storage=2;
+        if (Auth::user()->id_role == 3) {
+            $id_storage = 2;
         }
 
-        if(Auth::user()->id_role==1){
-            $id_storage=$request->id_storage;
+        if (Auth::user()->id_role == 1) {
+            $id_storage = $request->id_storage;
         }
 
         $Sale = Sale::where('status', 1)->whereBetween('date', $request->date)->where('id_storage', $id_storage)->orderBy('date')->get();
@@ -422,16 +420,16 @@ class SaleController extends Controller
             'date' => 'required'
         ]);
 
-        if(Auth::user()->id_role==2){
-            $id_storage=1;
+        if (Auth::user()->id_role == 2) {
+            $id_storage = 1;
         }
 
-        if(Auth::user()->id_role==3){
-            $id_storage=2;
+        if (Auth::user()->id_role == 3) {
+            $id_storage = 2;
         }
 
-        if(Auth::user()->id_role==1){
-            $id_storage=$request->id_storage;
+        if (Auth::user()->id_role == 1) {
+            $id_storage = $request->id_storage;
         }
 
         $year = date("Y");
@@ -543,11 +541,11 @@ class SaleController extends Controller
 
             $cell = 16;
             foreach ($detail as $sd) {
-                $worksheet->getCell('B'.$cell)->setValue($sd->product->name);
-                $worksheet->getCell('D'.$cell)->setValue($sd->quantity);
-                $worksheet->getCell('E'.$cell)->setValue($sd->price);
-                $worksheet->getCell('F'.$cell)->setValue($sd->discount);
-                $worksheet->getCell('G'.$cell)->setValue($sd->subtotal);
+                $worksheet->getCell('B' . $cell)->setValue($sd->product->name);
+                $worksheet->getCell('D' . $cell)->setValue($sd->quantity);
+                $worksheet->getCell('E' . $cell)->setValue($sd->price);
+                $worksheet->getCell('F' . $cell)->setValue($sd->discount);
+                $worksheet->getCell('G' . $cell)->setValue($sd->subtotal);
 
                 $cell = $cell + 1;
             }
@@ -555,12 +553,12 @@ class SaleController extends Controller
             $igv = $cell;
             $subtotal = $cell + 1;
             $total = $cell + 2;
-            $worksheet->getCell('F'.$igv)->setValue('IGV');
-            $worksheet->getCell('F'.$subtotal)->setValue('SUBTOTAL');
-            $worksheet->getCell('F'.$total)->setValue('TOTAL');
-            $worksheet->getCell('G'.$igv)->setValue($Sale->igv);
-            $worksheet->getCell('G'.$subtotal)->setValue($Sale->subtotal);
-            $worksheet->getCell('G'.$total)->setValue($Sale->total);
+            $worksheet->getCell('F' . $igv)->setValue('IGV');
+            $worksheet->getCell('F' . $subtotal)->setValue('SUBTOTAL');
+            $worksheet->getCell('F' . $total)->setValue('TOTAL');
+            $worksheet->getCell('G' . $igv)->setValue($Sale->igv);
+            $worksheet->getCell('G' . $subtotal)->setValue($Sale->subtotal);
+            $worksheet->getCell('G' . $total)->setValue($Sale->total);
 
             $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
             $writer->save("storage/sales/Venta_" . $Sale->number_doc . '.xlsx'); //la salida
@@ -588,16 +586,16 @@ class SaleController extends Controller
             $validatedData = $request->validate([
                 'date' => 'required'
             ]);
-            if(Auth::user()->id_role==2){
-                $id_storage=1;
+            if (Auth::user()->id_role == 2) {
+                $id_storage = 1;
             }
 
-            if(Auth::user()->id_role==3){
-                $id_storage=2;
+            if (Auth::user()->id_role == 3) {
+                $id_storage = 2;
             }
 
-            if(Auth::user()->id_role==1){
-                $id_storage=$request->id_storage;
+            if (Auth::user()->id_role == 1) {
+                $id_storage = $request->id_storage;
             }
 
 
@@ -609,27 +607,27 @@ class SaleController extends Controller
                 ], 400);
             }
 
-            $worksheet->getCell('B7')->setValue('VENTAS DEL DÍA '.date('d/m/Y', strtotime($request->date)).' ('.$storage->name.')');
+            $worksheet->getCell('B7')->setValue('VENTAS DEL DÍA ' . date('d/m/Y', strtotime($request->date)) . ' (' . $storage->name . ')');
 
             $x = 0;
             $cell = 9;
             foreach ($Sale as $sale) {
-                $worksheet->getCell('B'.$cell)->setValue(date('d/m/Y', strtotime($sale->date)));
-                $worksheet->getCell('C'.$cell)->setValue($sale->type_doc);
-                $worksheet->getCell('D'.$cell)->setValue($sale->number_doc);
-                $worksheet->getCell('E'.$cell)->setValue($sale->observation);
-                $worksheet->getCell('F'.$cell)->setValue($sale->client->name);
-                $worksheet->getCell('G'.$cell)->setValue($sale->discount);
-                $worksheet->getCell('H'.$cell)->setValue($sale->igv);
-                $worksheet->getCell('I'.$cell)->setValue($sale->subtotal);
-                $worksheet->getCell('J'.$cell)->setValue($sale->total);
+                $worksheet->getCell('B' . $cell)->setValue(date('d/m/Y', strtotime($sale->date)));
+                $worksheet->getCell('C' . $cell)->setValue($sale->type_doc);
+                $worksheet->getCell('D' . $cell)->setValue($sale->number_doc);
+                $worksheet->getCell('E' . $cell)->setValue($sale->observation);
+                $worksheet->getCell('F' . $cell)->setValue($sale->client->name);
+                $worksheet->getCell('G' . $cell)->setValue($sale->discount);
+                $worksheet->getCell('H' . $cell)->setValue($sale->igv);
+                $worksheet->getCell('I' . $cell)->setValue($sale->subtotal);
+                $worksheet->getCell('J' . $cell)->setValue($sale->total);
 
                 $cell = $cell + 1;
                 $x = $x + $sale->total;
             }
 
-            $worksheet->getCell('I'.$cell)->setValue('TOTAL');
-            $worksheet->getCell('J'.$cell)->setValue(sprintf('%.2f',round($x,2)));
+            $worksheet->getCell('I' . $cell)->setValue('TOTAL');
+            $worksheet->getCell('J' . $cell)->setValue(sprintf('%.2f', round($x, 2)));
 
             $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
             $writer->save("storage/sales/Venta_" . date('d-m-Y', strtotime($request->date)) . '.xlsx'); //la salida
@@ -658,16 +656,16 @@ class SaleController extends Controller
                 'date' => 'required'
             ]);
 
-            if(Auth::user()->id_role==2){
-                $id_storage=1;
+            if (Auth::user()->id_role == 2) {
+                $id_storage = 1;
             }
 
-            if(Auth::user()->id_role==3){
-                $id_storage=2;
+            if (Auth::user()->id_role == 3) {
+                $id_storage = 2;
             }
 
-            if(Auth::user()->id_role==1){
-                $id_storage=$request->id_storage;
+            if (Auth::user()->id_role == 1) {
+                $id_storage = $request->id_storage;
             }
 
 
@@ -679,27 +677,27 @@ class SaleController extends Controller
                 ], 400);
             }
 
-            $worksheet->getCell('B7')->setValue('VENTAS ENTRE FECHAS '.date('d/m/Y', strtotime($request->date[0])).' - '.date('d/m/Y', strtotime($request->date[1])).' ('.$storage->name.')');
+            $worksheet->getCell('B7')->setValue('VENTAS ENTRE FECHAS ' . date('d/m/Y', strtotime($request->date[0])) . ' - ' . date('d/m/Y', strtotime($request->date[1])) . ' (' . $storage->name . ')');
 
             $x = 0;
             $cell = 9;
             foreach ($Sale as $sale) {
-                $worksheet->getCell('B'.$cell)->setValue(date('d/m/Y', strtotime($sale->date)));
-                $worksheet->getCell('C'.$cell)->setValue($sale->type_doc);
-                $worksheet->getCell('D'.$cell)->setValue($sale->number_doc);
-                $worksheet->getCell('E'.$cell)->setValue($sale->observation);
-                $worksheet->getCell('F'.$cell)->setValue($sale->client->name);
-                $worksheet->getCell('G'.$cell)->setValue($sale->discount);
-                $worksheet->getCell('H'.$cell)->setValue($sale->igv);
-                $worksheet->getCell('I'.$cell)->setValue($sale->subtotal);
-                $worksheet->getCell('J'.$cell)->setValue($sale->total);
+                $worksheet->getCell('B' . $cell)->setValue(date('d/m/Y', strtotime($sale->date)));
+                $worksheet->getCell('C' . $cell)->setValue($sale->type_doc);
+                $worksheet->getCell('D' . $cell)->setValue($sale->number_doc);
+                $worksheet->getCell('E' . $cell)->setValue($sale->observation);
+                $worksheet->getCell('F' . $cell)->setValue($sale->client->name);
+                $worksheet->getCell('G' . $cell)->setValue($sale->discount);
+                $worksheet->getCell('H' . $cell)->setValue($sale->igv);
+                $worksheet->getCell('I' . $cell)->setValue($sale->subtotal);
+                $worksheet->getCell('J' . $cell)->setValue($sale->total);
 
                 $cell = $cell + 1;
                 $x = $x + $sale->total;
             }
 
-            $worksheet->getCell('I'.$cell)->setValue('TOTAL');
-            $worksheet->getCell('J'.$cell)->setValue(sprintf('%.2f',round($x,2)));
+            $worksheet->getCell('I' . $cell)->setValue('TOTAL');
+            $worksheet->getCell('J' . $cell)->setValue(sprintf('%.2f', round($x, 2)));
 
             $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
             $writer->save("storage/sales/Venta_Rango_" . date('d-m-Y', strtotime($request->date[0])) . '_a_' . date('d-m-Y', strtotime($request->date[1])) . '.xlsx');
@@ -727,16 +725,16 @@ class SaleController extends Controller
             $validatedData = $request->validate([
                 'date' => 'required'
             ]);
-            if(Auth::user()->id_role==2){
-                $id_storage=1;
+            if (Auth::user()->id_role == 2) {
+                $id_storage = 1;
             }
 
-            if(Auth::user()->id_role==3){
-                $id_storage=2;
+            if (Auth::user()->id_role == 3) {
+                $id_storage = 2;
             }
 
-            if(Auth::user()->id_role==1){
-                $id_storage=$request->id_storage;
+            if (Auth::user()->id_role == 1) {
+                $id_storage = $request->id_storage;
             }
 
             $year = date("Y");
@@ -786,27 +784,27 @@ class SaleController extends Controller
                     break;
             }
 
-            $worksheet->getCell('B7')->setValue('VENTAS DEL MES DE '.$request->date.' DEl '.$year.' ('.$storage->name.')');
+            $worksheet->getCell('B7')->setValue('VENTAS DEL MES DE ' . $request->date . ' DEl ' . $year . ' (' . $storage->name . ')');
 
             $x = 0;
             $cell = 9;
             foreach ($Sale as $sale) {
-                $worksheet->getCell('B'.$cell)->setValue(date('d/m/Y', strtotime($sale->date)));
-                $worksheet->getCell('C'.$cell)->setValue($sale->type_doc);
-                $worksheet->getCell('D'.$cell)->setValue($sale->number_doc);
-                $worksheet->getCell('E'.$cell)->setValue($sale->observation);
-                $worksheet->getCell('F'.$cell)->setValue($sale->client->name);
-                $worksheet->getCell('G'.$cell)->setValue($sale->discount);
-                $worksheet->getCell('H'.$cell)->setValue($sale->igv);
-                $worksheet->getCell('I'.$cell)->setValue($sale->subtotal);
-                $worksheet->getCell('J'.$cell)->setValue($sale->total);
+                $worksheet->getCell('B' . $cell)->setValue(date('d/m/Y', strtotime($sale->date)));
+                $worksheet->getCell('C' . $cell)->setValue($sale->type_doc);
+                $worksheet->getCell('D' . $cell)->setValue($sale->number_doc);
+                $worksheet->getCell('E' . $cell)->setValue($sale->observation);
+                $worksheet->getCell('F' . $cell)->setValue($sale->client->name);
+                $worksheet->getCell('G' . $cell)->setValue($sale->discount);
+                $worksheet->getCell('H' . $cell)->setValue($sale->igv);
+                $worksheet->getCell('I' . $cell)->setValue($sale->subtotal);
+                $worksheet->getCell('J' . $cell)->setValue($sale->total);
 
                 $cell = $cell + 1;
                 $x = $x + $sale->total;
             }
 
-            $worksheet->getCell('I'.$cell)->setValue('TOTAL');
-            $worksheet->getCell('J'.$cell)->setValue(sprintf('%.2f',round($x,2)));
+            $worksheet->getCell('I' . $cell)->setValue('TOTAL');
+            $worksheet->getCell('J' . $cell)->setValue(sprintf('%.2f', round($x, 2)));
 
             $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
             $writer->save("storage/sales/Venta_Mes_" . $request->date . '-' . $year . '.xlsx');
@@ -824,8 +822,21 @@ class SaleController extends Controller
         }
     }
 
-    public function totalForMonth() {
-        $year = date("Y");
-        return Sale::groupBy(DB::raw('month(date)'))->where('status', 1)->whereYear('date', $year)->sum('total');
+    public function totalForMonth()
+    {
+        
+        // $year = date("Y");
+        // return Sale::groupBy(DB::raw('month(date)'))->where('status', 1)->whereYear('date', $year)->sum('total');
+        if (Auth::user()->id_role == 2) {
+            return ResourcesSale::collection(Sale::where('id_storage', '1')->where('status', '1')->orderBy('date')->get());
+        }
+
+        if (Auth::user()->id_role == 3) {
+            return ResourcesSale::collection(Sale::where('id_storage', '2')->where('status', '1')->orderBy('date')->get());
+        }
+
+        if (Auth::user()->id_role == 1) {
+            return ResourcesSale::collection(Sale::where('status', '1')->orderBy('date')->get());
+        }
     }
 }

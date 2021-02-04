@@ -36,24 +36,23 @@ class PurchaseController extends Controller
 
             return ResourcesPurchase::collection(Purchase::get());
         }
-
-
     }
-    public function count() {
+    public function count()
+    {
 
         if (Auth::user()->id_role == 2) {
 
-            return Purchase::count()->where('id_storage', '1')->where('status','1');
+            return Purchase::where('id_storage', '1')->where('status', '1')->count();
         }
 
         if (Auth::user()->id_role == 3) {
 
-            return Purchase::count()->where('id_storage', '2')->where('status','1');
+            return Purchase::where('id_storage', '2')->where('status', '1')->count();
         }
 
         if (Auth::user()->id_role == 1) {
 
-            return Purchase::count()->where('status','1');
+            return Purchase::where('status', '1')->count();
         }
     }
     public function store(Request $request)
@@ -223,21 +222,21 @@ class PurchaseController extends Controller
 
 
 
-        if (Auth::user()->id_role == 2) {
-            if ($purchase->id_storage !='1') {
-                return response()->json([
-                    'message' => 'No puede anular la compra de esta tienda'
-                ], 400);
+            if (Auth::user()->id_role == 2) {
+                if ($purchase->id_storage != '1') {
+                    return response()->json([
+                        'message' => 'No puede anular la compra de esta tienda'
+                    ], 400);
+                }
             }
-        }
 
-        if (Auth::user()->id_role == 3) {
-            if ($purchase->id_storage !='2') {
-                return response()->json([
-                    'message' => 'No puede anular la compra de esta tienda'
-                ], 400);
+            if (Auth::user()->id_role == 3) {
+                if ($purchase->id_storage != '2') {
+                    return response()->json([
+                        'message' => 'No puede anular la compra de esta tienda'
+                    ], 400);
+                }
             }
-        }
 
 
             $purchase->status = 0;
@@ -331,16 +330,16 @@ class PurchaseController extends Controller
             'date' => 'required'
         ]);
 
-        if(Auth::user()->id_role==2){
-            $id_storage=1;
+        if (Auth::user()->id_role == 2) {
+            $id_storage = 1;
         }
 
-        if(Auth::user()->id_role==3){
-            $id_storage=2;
+        if (Auth::user()->id_role == 3) {
+            $id_storage = 2;
         }
 
-        if(Auth::user()->id_role==1){
-            $id_storage=$request->id_storage;
+        if (Auth::user()->id_role == 1) {
+            $id_storage = $request->id_storage;
         }
 
         $Purchase = Purchase::where('status', 1)->where('date', $request->date)->where('id_storage', $id_storage)->get();
@@ -372,20 +371,20 @@ class PurchaseController extends Controller
         $validatedData = $request->validate([
             'date' => 'required'
         ]);
-        if(Auth::user()->id_role==2){
-            $id_storage=1;
+        if (Auth::user()->id_role == 2) {
+            $id_storage = 1;
         }
 
-        if(Auth::user()->id_role==3){
-            $id_storage=2;
+        if (Auth::user()->id_role == 3) {
+            $id_storage = 2;
         }
 
-        if(Auth::user()->id_role==1){
-            $id_storage=$request->id_storage;
+        if (Auth::user()->id_role == 1) {
+            $id_storage = $request->id_storage;
         }
 
         $Purchase = Purchase::where('status', 1)->whereBetween('date', $request->date)->where('id_storage', $id_storage)
-        ->orderBy('date')->get();
+            ->orderBy('date')->get();
         $storage = Storage::findOrFail($id_storage);
         if ($Purchase == null || $Purchase->count() == 0) {
             return response()->json([
@@ -415,21 +414,21 @@ class PurchaseController extends Controller
         $validatedData = $request->validate([
             'date' => 'required'
         ]);
-        if(Auth::user()->id_role==2){
-            $id_storage=1;
+        if (Auth::user()->id_role == 2) {
+            $id_storage = 1;
         }
 
-        if(Auth::user()->id_role==3){
-            $id_storage=2;
+        if (Auth::user()->id_role == 3) {
+            $id_storage = 2;
         }
 
-        if(Auth::user()->id_role==1){
-            $id_storage=$request->id_storage;
+        if (Auth::user()->id_role == 1) {
+            $id_storage = $request->id_storage;
         }
 
         $year = date("Y");
         $Purchase = Purchase::where('status', 1)->whereMonth('date', $request->date)->whereYear('date', $year)->where('id_storage', $id_storage)
-        ->orderBy('date')->get();
+            ->orderBy('date')->get();
         $storage = Storage::findOrFail($id_storage);
         if ($Purchase == null || $Purchase->count() == 0) {
             return response()->json([
@@ -582,16 +581,16 @@ class PurchaseController extends Controller
             $validatedData = $request->validate([
                 'date' => 'required'
             ]);
-            if(Auth::user()->id_role==2){
-                $id_storage=1;
+            if (Auth::user()->id_role == 2) {
+                $id_storage = 1;
             }
 
-            if(Auth::user()->id_role==3){
-                $id_storage=2;
+            if (Auth::user()->id_role == 3) {
+                $id_storage = 2;
             }
 
-            if(Auth::user()->id_role==1){
-                $id_storage=$request->id_storage;
+            if (Auth::user()->id_role == 1) {
+                $id_storage = $request->id_storage;
             }
 
             $Purchase = Purchase::where('status', 1)->where('date', $request->date)->where('id_storage', $id_storage)->get();
@@ -602,7 +601,7 @@ class PurchaseController extends Controller
                 ], 400);
             }
 
-            $worksheet->getCell('B7')->setValue('COMPRAS DEL DÍA '.date('d/m/Y', strtotime($request->date)).' ('.$storage->name.')');
+            $worksheet->getCell('B7')->setValue('COMPRAS DEL DÍA ' . date('d/m/Y', strtotime($request->date)) . ' (' . $storage->name . ')');
 
             $x = 0;
             $cell = 9;
@@ -647,16 +646,16 @@ class PurchaseController extends Controller
             $validatedData = $request->validate([
                 'date' => 'required'
             ]);
-            if(Auth::user()->id_role==2){
-                $id_storage=1;
+            if (Auth::user()->id_role == 2) {
+                $id_storage = 1;
             }
 
-            if(Auth::user()->id_role==3){
-                $id_storage=2;
+            if (Auth::user()->id_role == 3) {
+                $id_storage = 2;
             }
 
-            if(Auth::user()->id_role==1){
-                $id_storage=$request->id_storage;
+            if (Auth::user()->id_role == 1) {
+                $id_storage = $request->id_storage;
             }
             $Purchase = Purchase::where('status', 1)->whereBetween('date', $request->date)->where('id_storage', $id_storage)->orderBy('date')->get();
             $storage = Storage::findOrFail($id_storage);
@@ -666,7 +665,7 @@ class PurchaseController extends Controller
                 ], 400);
             }
 
-            $worksheet->getCell('B7')->setValue('COMPRAS ENTRE FECHAS '.date('d/m/Y', strtotime($request->date[0])).' - '.date('d/m/Y', strtotime($request->date[1])).' ('.$storage->name.')');
+            $worksheet->getCell('B7')->setValue('COMPRAS ENTRE FECHAS ' . date('d/m/Y', strtotime($request->date[0])) . ' - ' . date('d/m/Y', strtotime($request->date[1])) . ' (' . $storage->name . ')');
 
             $x = 0;
             $cell = 9;
@@ -711,16 +710,16 @@ class PurchaseController extends Controller
             $validatedData = $request->validate([
                 'date' => 'required'
             ]);
-            if(Auth::user()->id_role==2){
-                $id_storage=1;
+            if (Auth::user()->id_role == 2) {
+                $id_storage = 1;
             }
 
-            if(Auth::user()->id_role==3){
-                $id_storage=2;
+            if (Auth::user()->id_role == 3) {
+                $id_storage = 2;
             }
 
-            if(Auth::user()->id_role==1){
-                $id_storage=$request->id_storage;
+            if (Auth::user()->id_role == 1) {
+                $id_storage = $request->id_storage;
             }
 
             $year = date("Y");
@@ -770,7 +769,7 @@ class PurchaseController extends Controller
                     break;
             }
 
-            $worksheet->getCell('B7')->setValue('COMPRAS DEL MES DE '.$request->date.' DEl '.$year.' ('.$storage->name.')');
+            $worksheet->getCell('B7')->setValue('COMPRAS DEL MES DE ' . $request->date . ' DEl ' . $year . ' (' . $storage->name . ')');
 
             $x = 0;
             $cell = 9;
@@ -804,21 +803,25 @@ class PurchaseController extends Controller
         }
     }
 
-    public function totalForMonth(Request $request) {
-        if(Auth::user()->id_role==2){
-            $id_storage=1;
+    public function totalForMonth(Request $request)
+    {
+        
+        if (Auth::user()->id_role == 2) {
+            return ResourcesPurchase::collection(Purchase::where('id_storage', '1')->where('status', '1')->orderBy('date')->get());
         }
 
-        if(Auth::user()->id_role==3){
-            $id_storage=2;
+        if (Auth::user()->id_role == 3) {
+            return ResourcesPurchase::collection(Purchase::where('id_storage', '2')->where('status', '1')->orderBy('date')->get());
         }
 
-        if(Auth::user()->id_role==1){
-            $id_storage=$request->id_storage;
+        if (Auth::user()->id_role == 1) {
+            return ResourcesPurchase::collection(Purchase::where('status', '1')->orderBy('date')->get());
         }
 
-        $year = date("Y");
-        //return Purchase::groupBy(DB::raw('month(date)'))->where('status', 1)->whereYear('date', $year)->where('id_storage',$id_storage)->sum('total');
-    return DB::select("select sum(total) as total from purchases where id_storage=".$id_storage." and status=1 group by MONTH(date)");
+        // $year = date("Y");
+        //return ResourcesPurchase::collection(Purchase::where('status', 1)->whereYear('date', $year)->where('id_storage',$id_storage));
+        //return DB::select("select date,total as total from purchases where id_storage=".$id_storage." and status=1 ");
+        //   return ResourcesPurchase::collection(Purchase::where('id_storage', '1')->orderBy('date')->get());
+
     }
 }

@@ -16,7 +16,7 @@ class ClientController extends Controller
     }
 
     public function count(Request $request) {
-        return Client::count()->where('status','1');
+        return Client::where('status','1')->count();
     }
 
     public function store(Request $request) {
