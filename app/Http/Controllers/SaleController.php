@@ -24,14 +24,14 @@ class SaleController extends Controller
     public function index()
     {
         if (Auth::user()->id_role == 2) {
-            return ResourcesSale::collection(Sale::where('id_storage', '1')->get());
+            return ResourcesSale::collection(Sale::where('id_storage', '1')->orderBy('date','DESC')->get());
         }
         if (Auth::user()->id_role == 3) {
-            return ResourcesSale::collection(Sale::where('id_storage', '2')->get());
+            return ResourcesSale::collection(Sale::where('id_storage', '2')->orderBy('date','DESC')->get());
         }
 
         if (Auth::user()->id_role == 1) {
-            return ResourcesSale::collection(Sale::get());
+            return ResourcesSale::collection(Sale::->orderBy('date','DESC')get());
         }
     }
 

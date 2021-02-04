@@ -24,17 +24,17 @@ class PurchaseController extends Controller
     {
         if (Auth::user()->id_role == 2) {
 
-            return ResourcesPurchase::collection(Purchase::where('id_storage', '1')->get());
+            return ResourcesPurchase::collection(Purchase::where('id_storage', '1')->orderBy('date','DESC')->get());
         }
 
         if (Auth::user()->id_role == 3) {
 
-            return ResourcesPurchase::collection(Purchase::where('id_storage', '2')->get());
+            return ResourcesPurchase::collection(Purchase::where('id_storage', '2')->orderBy('date','DESC')->get());
         }
 
         if (Auth::user()->id_role == 1) {
 
-            return ResourcesPurchase::collection(Purchase::get());
+            return ResourcesPurchase::collection(Purchase::get()->orderBy('date','DESC'));
         }
     }
     public function count()
