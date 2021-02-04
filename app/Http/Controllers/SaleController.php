@@ -31,7 +31,7 @@ class SaleController extends Controller
         }
 
         if (Auth::user()->id_role == 1) {
-            return ResourcesSale::collection(Sale::->orderBy('date','DESC')get());
+            return ResourcesSale::collection(Sale::where('id_storage', '2')->orderBy('date','DESC')->get());
         }
     }
 

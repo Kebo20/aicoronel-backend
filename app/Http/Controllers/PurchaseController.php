@@ -34,7 +34,7 @@ class PurchaseController extends Controller
 
         if (Auth::user()->id_role == 1) {
 
-            return ResourcesPurchase::collection(Purchase::get()->orderBy('date','DESC'));
+            return ResourcesPurchase::collection(Purchase::orderBy('date','DESC')->get());
         }
     }
     public function count()
