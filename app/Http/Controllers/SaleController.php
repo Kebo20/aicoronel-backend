@@ -825,18 +825,24 @@ class SaleController extends Controller
     public function totalForMonth()
     {
 
-        // $year = date("Y");
-        // return Sale::groupBy(DB::raw('month(date)'))->where('status', 1)->whereYear('date', $year)->sum('total');
+        $year = date("Y");
+
         if (Auth::user()->id_role == 2) {
-            return ResourcesSale::collection(Sale::where('id_storage', '1')->where('status', '1')->orderBy('date')->get());
+            // return ResourcesPurchase::collection(Purchase::where('id_storage', '1')->where('status', '1')->orderBy('date')->get());
+           return DB::select("select DATE_FORMAT(DATE, '%M', 'es_ES')  as month,SUM(total) as total from sales where id_storage='1' YEAR(DATE)=".$year." and status=1  GROUP BY month ORDER BY date ASC");
+
         }
 
         if (Auth::user()->id_role == 3) {
-            return ResourcesSale::collection(Sale::where('id_storage', '2')->where('status', '1')->orderBy('date')->get());
+            // return ResourcesPurchase::collection(Purchase::where('id_storage', '2')->where('status', '1')->orderBy('date')->get());
+           return DB::select("select DATE_FORMAT(DATE, '%M', 'es_ES')  as month,SUM(total) as total from sales where id_storage='2' YEAR(DATE)=".$year." and status=1  GROUP BY month ORDER BY date ASC");
+
         }
 
         if (Auth::user()->id_role == 1) {
-            return ResourcesSale::collection(Sale::where('status', '1')->orderBy('date')->get());
+           // return ResourcesPurchase::collection(Purchase::where('status', '1')->orderBy('date')->get());
+           return DB::select("select DATE_FORMAT(DATE, '%M', 'es_ES')  as month,SUM(total) as total from sales where  YEAR(DATE)=".$year." and status=1  GROUP BY month ORDER BY date ASC");
+
         }
     }
 }
