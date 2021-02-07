@@ -314,7 +314,7 @@ class SaleController extends Controller
         }
 
         $Sale = Sale::findOrFail($id); //busca o falla
-        $detail = SaleDetail::where('status', 1)->where('id_sale', $Sale->id_sale)->get();
+        $detail = SaleDetail::where('id_sale', $Sale->id_sale)->get();
         $data = array(
             'sale' => $Sale,
             'detail' => $detail
@@ -347,7 +347,7 @@ class SaleController extends Controller
             $id_storage = $request->id_storage;
         }
 
-        $Sale = Sale::where('status', 1)->where('date', $request->date)->where('id_storage', $id_storage)->get();
+        $Sale = Sale::where('date', $request->date)->where('id_storage', $id_storage)->get();
         $storage = Storage::findOrFail($id_storage);
         if ($Sale == null || $Sale->count() == 0) {
             return response()->json([
@@ -389,7 +389,7 @@ class SaleController extends Controller
             $id_storage = $request->id_storage;
         }
 
-        $Sale = Sale::where('status', 1)->whereBetween('date', $request->date)->where('id_storage', $id_storage)->orderBy('date')->get();
+        $Sale = Sale::whereBetween('date', $request->date)->where('id_storage', $id_storage)->orderBy('date')->get();
         $storage = Storage::findOrFail($id_storage);
         if ($Sale == null || $Sale->count() == 0) {
             return response()->json([
@@ -433,7 +433,7 @@ class SaleController extends Controller
         }
 
         $year = date("Y");
-        $Sale = Sale::where('status', 1)->whereMonth('date', $request->date)->whereYear('date', $year)->where('id_storage', $id_storage)->orderBy('date')->get();
+        $Sale = Sale::whereMonth('date', $request->date)->whereYear('date', $year)->where('id_storage', $id_storage)->orderBy('date')->get();
         $storage = Storage::findOrFail($id_storage);
         if ($Sale == null || $Sale->count() == 0) {
             return response()->json([
@@ -599,7 +599,7 @@ class SaleController extends Controller
             }
 
 
-            $Sale = Sale::where('status', 1)->where('date', $request->date)->where('id_storage', $id_storage)->get();
+            $Sale = Sale::where('date', $request->date)->where('id_storage', $id_storage)->get();
             $storage = Storage::findOrFail($id_storage);
             if ($Sale == null || $Sale->count() == 0) {
                 return response()->json([
@@ -669,7 +669,7 @@ class SaleController extends Controller
             }
 
 
-            $Sale = Sale::where('status', 1)->whereBetween('date', $request->date)->where('id_storage', $id_storage)->orderBy('date')->get();
+            $Sale = Sale::whereBetween('date', $request->date)->where('id_storage', $id_storage)->orderBy('date')->get();
             $storage = Storage::findOrFail($id_storage);
             if ($Sale == null || $Sale->count() == 0) {
                 return response()->json([
@@ -738,7 +738,7 @@ class SaleController extends Controller
             }
 
             $year = date("Y");
-            $Sale = Sale::where('status', 1)->whereMonth('date', $request->date)->whereYear('date', $year)->where('id_storage', $id_storage)->orderBy('date')->get();
+            $Sale = Sale::whereMonth('date', $request->date)->whereYear('date', $year)->where('id_storage', $id_storage)->orderBy('date')->get();
             $storage = Storage::findOrFail($id_storage);
             if ($Sale == null || $Sale->count() == 0) {
                 return response()->json([
@@ -824,19 +824,25 @@ class SaleController extends Controller
 
     public function totalForMonth()
     {
-        
-        // $year = date("Y");
-        // return Sale::groupBy(DB::raw('month(date)'))->where('status', 1)->whereYear('date', $year)->sum('total');
+
+        $year = date("Y");
+
         if (Auth::user()->id_role == 2) {
-            return ResourcesSale::collection(Sale::where('id_storage', '1')->where('status', '1')->orderBy('date')->get());
+            // return ResourcesPurchase::collection(Purchase::where('id_storage', '1')->where('status', '1')->orderBy('date')->get());
+           return DB::select("select DATE_FORMAT(DATE, '%M', 'es_ES')  as month,SUM(total) as total from sales where id_storage='1' YEAR(DATE)=".$year." and status=1  GROUP BY month ORDER BY date ASC");
+
         }
 
         if (Auth::user()->id_role == 3) {
-            return ResourcesSale::collection(Sale::where('id_storage', '2')->where('status', '1')->orderBy('date')->get());
+            // return ResourcesPurchase::collection(Purchase::where('id_storage', '2')->where('status', '1')->orderBy('date')->get());
+           return DB::select("select DATE_FORMAT(DATE, '%M', 'es_ES')  as month,SUM(total) as total from sales where id_storage='2' YEAR(DATE)=".$year." and status=1  GROUP BY month ORDER BY date ASC");
+
         }
 
         if (Auth::user()->id_role == 1) {
-            return ResourcesSale::collection(Sale::where('status', '1')->orderBy('date')->get());
+           // return ResourcesPurchase::collection(Purchase::where('status', '1')->orderBy('date')->get());
+           return DB::select("select DATE_FORMAT(DATE, '%M', 'es_ES')  as month,SUM(total) as total from sales where  YEAR(DATE)=".$year." and status=1  GROUP BY month ORDER BY date ASC");
+
         }
     }
 }

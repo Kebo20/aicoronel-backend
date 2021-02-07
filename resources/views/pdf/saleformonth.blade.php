@@ -99,7 +99,7 @@
                 <div style="background-color:#fcfcfc;border-radius: 16px; border: 0.03cm solid black;float: right;position: relative;width: 35%;text-align: center">
                     <b><span style="font-size: 15px">AGRO IMPORT CORONEL</span></b><br>
                     <div style="background-color:black;width:100%;padding:0.05cm">
-                        <span style="font-size: 12px;color:white">RUC: PREGUNTAR</span>
+                        <span style="font-size: 12px;color:white">RUC: 10710988833</span>
                     </div>
                     <span style="font-size: 12px">Celular: 990233458</span>
                 </div>
@@ -109,7 +109,7 @@
             <div>
             <table class="table_assistance">
                 <tr>
-                    <td colspan="7" rowspan="1" style="text-align:center; background:#1b1b1c;color:white">
+                    <td colspan="7" rowspan="1" style="text-align:center; background: #dbdedf">
                         <h2><center>REPORTE DE VENTAS POR EL MES DE {{$data['mes']}} DEL {{$data['ano']}} ({{$data['storage']->name}})</center></h2>
                     </td>
                 </tr>

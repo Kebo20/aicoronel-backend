@@ -46,6 +46,8 @@ Route::group([
             Route::apiResource('categories', 'CategoryController');
             Route::apiResource('products', 'ProductController');
             Route::apiResource('users', 'UserController');
+            Route::apiResource('purchases', 'PurchaseController');
+
         });
 
 
@@ -61,7 +63,6 @@ Route::group([
         Route::get('clients/list', 'ClientController@list');
         Route::apiResource('clients', 'ClientController');
         Route::apiResource('lots', 'LotController');
-        Route::apiResource('purchases', 'PurchaseController');
         Route::apiResource('sales', 'SaleController');
 
         Route::get('purchases/print/{id}', 'PurchaseController@print');
