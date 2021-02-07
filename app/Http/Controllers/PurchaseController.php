@@ -806,32 +806,51 @@ class PurchaseController extends Controller
     public function totalForMonth(Request $request)
     {
 
+        // $year = date("Y");
+
+        // if (Auth::user()->id_role == 2) {
+        //     // return ResourcesPurchase::collection(Purchase::where('id_storage', '1')->where('status', '1')->orderBy('date')->get());
+        //    return DB::select("select DATE_FORMAT(DATE, '%M', 'es_ES')  as month,SUM(total) as total from purchases where id_storage='1' YEAR(DATE)=".$year." and status=1 GROUP BY month  ORDER BY date ASC");
+
+        // }
+
+        // if (Auth::user()->id_role == 3) {
+        //     // return ResourcesPurchase::collection(Purchase::where('id_storage', '2')->where('status', '1')->orderBy('date')->get());
+        //    return DB::select("select DATE_FORMAT(DATE, '%M', 'es_ES')  as month,SUM(total) as total from purchases where id_storage='2' YEAR(DATE)=".$year." and status=1 GROUP BY month  ORDER BY date ASC");
+
+        // }
+
+        // if (Auth::user()->id_role == 1) {
+        //    // return ResourcesPurchase::collection(Purchase::where('status', '1')->orderBy('date')->get());
+        //    return DB::select("select DATE_FORMAT(DATE, '%M', 'es_ES')  as month,SUM(total) as total from purchases where  YEAR(DATE)=".$year." and status=1 GROUP BY month  ORDER BY date ASC");
+
+        // }
+
+      
         $year = date("Y");
 
         if (Auth::user()->id_role == 2) {
             // return ResourcesPurchase::collection(Purchase::where('id_storage', '1')->where('status', '1')->orderBy('date')->get());
-           return DB::select("select DATE_FORMAT(DATE, '%M', 'es_ES')  as month,SUM(total) as total from purchases where id_storage='1' YEAR(DATE)=".$year." and status=1 GROUP BY month  ORDER BY date ASC");
+           return DB::select("SET lc_time_names = 'es_ES';
+
+           select DATE_FORMAT(date, '%M')  as month,SUM(total) as total from purchases where id_storage='1' YEAR(DATE)=".$year." and status=1 GROUP BY month  ORDER BY MONTH(date) ASC");
 
         }
 
         if (Auth::user()->id_role == 3) {
             // return ResourcesPurchase::collection(Purchase::where('id_storage', '2')->where('status', '1')->orderBy('date')->get());
-           return DB::select("select DATE_FORMAT(DATE, '%M', 'es_ES')  as month,SUM(total) as total from purchases where id_storage='2' YEAR(DATE)=".$year." and status=1 GROUP BY month  ORDER BY date ASC");
+           return DB::select("
+           SET lc_time_names = 'es_ES';
+           select DATE_FORMAT(date, '%M')  as month,SUM(total) as total from purchases where id_storage='2' YEAR(DATE)=".$year." and status=1 GROUP BY month  ORDER BY MONTH(date) ASC");
 
         }
 
         if (Auth::user()->id_role == 1) {
            // return ResourcesPurchase::collection(Purchase::where('status', '1')->orderBy('date')->get());
-           return DB::select("select DATE_FORMAT(DATE, '%M', 'es_ES')  as month,SUM(total) as total from purchases where  YEAR(DATE)=".$year." and status=1 GROUP BY month  ORDER BY date ASC");
+           return DB::select("SET lc_time_names = 'es_ES';
+           select DATE_FORMAT(date, '%M')  as month,SUM(total) as total from purchases where  YEAR(DATE)=".$year." and status=1 GROUP BY month  ORDER BY MONTH(date) ASC");
 
         }
-
-        //
-        //return ResourcesPurchase::collection(Purchase::where('status', 1)->whereYear('date', $year)->where('id_storage',$id_storage));
-        //return DB::select("select date,total as total from purchases where id_storage=".$id_storage." and status=1 ");
-        //   return ResourcesPurchase::collection(Purchase::where('id_storage', '1')->orderBy('date')->get());
-
-
 
     }
 }
