@@ -851,7 +851,7 @@ class SaleController extends Controller
             // return ResourcesPurchase::collection(Purchase::where('id_storage', '1')->where('status', '1')->orderBy('date')->get());
            return DB::select("SET lc_time_names = 'es_ES';
 
-           select DATE_FORMAT(date, '%M')  as month,SUM(total) as total from sales where id_storage='1' YEAR(DATE)=".$year." and status=1 GROUP BY month  ORDER BY MONTH(date) ASC");
+           select DATE_FORMAT(date, '%M')  as month,SUM(total) as total from sales where id_storage='1' YEAR(date)=".$year." and status=1 GROUP BY month  ORDER BY MONTH(date) ASC");
 
         }
 
@@ -859,14 +859,14 @@ class SaleController extends Controller
             // return ResourcesPurchase::collection(Purchase::where('id_storage', '2')->where('status', '1')->orderBy('date')->get());
            return DB::select("
            SET lc_time_names = 'es_ES';
-           select DATE_FORMAT(date, '%M')  as month,SUM(total) as total from sales where id_storage='2' YEAR(DATE)=".$year." and status=1 GROUP BY month  ORDER BY MONTH(date) ASC");
+           select DATE_FORMAT(date, '%M')  as month,SUM(total) as total from sales where id_storage='2' YEAR(date)=".$year." and status=1 GROUP BY month  ORDER BY MONTH(date) ASC");
 
         }
 
         if (Auth::user()->id_role == 1) {
            // return ResourcesPurchase::collection(Purchase::where('status', '1')->orderBy('date')->get());
            return DB::select("SET lc_time_names = 'es_ES';
-           select DATE_FORMAT(date, '%M')  as month,SUM(total) as total from sales where  YEAR(DATE)=".$year." and status=1 GROUP BY month  ORDER BY MONTH(date) ASC");
+           select DATE_FORMAT(date, '%M')  as month,SUM(total) as total from sales where  YEAR(date)=".$year." and status=1 GROUP BY month  ORDER BY MONTH(date) ASC");
 
         }
     }
