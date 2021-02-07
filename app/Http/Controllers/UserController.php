@@ -20,7 +20,15 @@ class UserController extends Controller
     {
         $validatedData = $request->validate([
             'name' => 'required|max:255',
-            'password' => 'required',
+            'password' => [
+                'required',
+                'string',
+                'min:8',             // must be at least 10 characters in length
+                'regex:/[a-zA-Z]/',      // must contain at least one lowercase letter
+               // 'regex:/[A-Z]/',      // must contain at least one uppercase letter
+                'regex:/[0-9]/',      // must contain at least one digit
+                //'regex:/[@$!%*#?&]/', // must contain a special character
+            ],
             'id_role' => 'required'
         ]);
 
@@ -54,11 +62,15 @@ class UserController extends Controller
         if($request->password!=''){
             $validatedData = $request->validate([
                 'name' => 'required|max:255',
-                'password'=>'required|min:8',
-                            'regex:/[a-zA-Z]/',      // must contain at least one lowercase letter
-                            //'regex:/[A-Z]/',      // must contain at least one uppercase letter
-                            'regex:/[0-9]/',      // must contain at least one digit
-                            //'regex:/[@$!%*#?&]/', // must contain a special character
+                'password' => [
+                    'required',
+                    'string',
+                    'min:8',             // must be at least 10 characters in length
+                    'regex:/[a-zA-Z]/',      // must contain at least one lowercase letter
+                   // 'regex:/[A-Z]/',      // must contain at least one uppercase letter
+                    'regex:/[0-9]/',      // must contain at least one digit
+                    //'regex:/[@$!%*#?&]/', // must contain a special character
+                ],
             ]);
         }else{
             $validatedData = $request->validate([
@@ -67,6 +79,8 @@ class UserController extends Controller
             ]);
     
         }
+
+      
       
         DB::beginTransaction();
 

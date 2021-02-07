@@ -21,7 +21,7 @@ class Product extends JsonResource
             'brand'=>htmlspecialchars($this->brand),
             'units'=>htmlspecialchars($this->units),
             'id_category'=>$this->id_category,
-            'category_name'=>htmlspecialchars($this->category->name),
+            'category_name'=>$this->id_category?htmlspecialchars($this->category->name):'',
             //'purchases_detail'=>PurchaseDetail::collection($this->purchases_detail),
             'status'=>$this->status
         ];

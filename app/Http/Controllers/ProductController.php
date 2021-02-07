@@ -16,7 +16,9 @@ class ProductController extends Controller
 
     public function store(Request $request) {
         $validatedData = $request->validate([
-            'name' => 'required|max:255'
+            'name' => 'required|max:255',
+            'price' => 'required|numeric'
+
         ]);
 
         $exist_product = Product::where('name', $request->name)->first();
@@ -25,6 +27,12 @@ class ProductController extends Controller
                 'message' => 'Ya existe un nombre con el mismo nombre.'
             ], 400);
 
+            if($request->price<1){
+                return response()->json([
+                    'message' => 'El precio debe ser maypr a 0'
+                ], 400);
+            }
+
             DB::beginTransaction();
 
             $product = new Product();
@@ -32,7 +40,7 @@ class ProductController extends Controller
             $product->price = strip_tags($request->price);
             $product->brand = strip_tags($request->brand);
             $product->units = strip_tags($request->units);
-            $product->id_category = strip_tags($request->id_category);
+            $product->id_category =$request->id_category?strip_tags($request->id_category):null;
             $product->created_by = auth()->id();
             $product->updated_by = auth()->id();
             $product->save();
@@ -47,8 +55,15 @@ class ProductController extends Controller
 
     public function update(Request $request, $id) {
         $validatedData = $request->validate([
-            'name' => 'required|max:255'
-        ]);
+            'name' => 'required|max:255',
+            'price' => 'required|numeric'        ]);
+
+            if($request->price<1){
+                return response()->json([
+                    'message' => 'El precio debe ser maypr a 0'
+                ], 400);
+            }
+
 
             DB::beginTransaction();
 
@@ -57,7 +72,7 @@ class ProductController extends Controller
             $product->price = $request->price;
             $product->brand = $request->brand;
             $product->units = $request->units;
-            $product->id_category = $request->id_category;
+            $product->id_category =$request->id_category?strip_tags($request->id_category):null;
             $product->updated_by = auth()->id();
             $product->save();
 
