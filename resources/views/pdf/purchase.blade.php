@@ -127,9 +127,9 @@
             @endif
             <div style="width: 100%">
                
-                <div style="float: left;position: relative;width:70%">
+                <!-- <div style="float: left;position: relative;width:70%">
                     <img src="images/aicoronel.jpg" width="60" height="80px" alt="">
-                </div>
+                </div> -->
                 
                 <div style="background-color:#fcfcfc;border-radius: 16px; border: 0.03cm solid black;float: right;position: relative;width: 35%;text-align: center">
                     <b><span style="font-size: 15px">AGRO IMPORT CORONEL</span></b><br>
