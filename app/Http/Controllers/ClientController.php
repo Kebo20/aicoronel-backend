@@ -61,12 +61,12 @@ class ClientController extends Controller
             DB::beginTransaction();
 
             $client = Client::findOrFail($id);
-            $client->number_doc = $request->number_doc;
-            $client->name = $request->name;
-            $client->type_doc = $request->type_doc;
-            $client->address = $request->address;
-            $client->phone = $request->phone;
-            $client->email = $request->email;
+            $client->number_doc = strip_tags($request->number_doc);
+            $client->name = strip_tags($request->name);
+            $client->type_doc = strip_tags($request->type_doc);
+            $client->address = strip_tags($request->address);
+            $client->phone = strip_tags($request->phone);
+            $client->email = strip_tags($request->email);
             $client->updated_by = auth()->id();
             $client->save();
 
