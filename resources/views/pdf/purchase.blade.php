@@ -15,7 +15,6 @@
                     margin-right: 2cm;
                     margin-bottom: 0.5cm;
             }
-
             /* Define the header rules */
             header {
                 position: fixed;
@@ -89,7 +88,43 @@
         </footer>
 
         <main>
+            @if($data['purchase']->status == 0)
+                <style>
+                    body:after {
+                        content: "ANULADA";
+                        font-size: 10em;
+                        color: rgba(176, 179, 180, 0.4);
+                        z-index: 9999;
 
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        position: fixed;
+                        top: 0;
+                        right: 0;
+                        bottom: 0;
+                        /*left: 0;*/
+
+                        left: 180px;
+                        font-size: 135px;
+                        width: 250px;
+                        position: relative;
+                        top: 150px;
+
+                        -webkit-transform: rotate(-45deg);
+                        -moz-transform: rotate(-45deg);
+                        -ms-transform: rotate(-45deg);
+                        -o-transform: rotate(-45deg);
+                        transform: rotate(-45deg);
+
+                        -webkit-transform-origin: 50% 50%;
+                        -moz-transform-origin: 50% 50%;
+                        -ms-transform-origin: 50% 50%;
+                        -o-transform-origin: 50% 50%;
+                        transform-origin: 50% 50%;
+                    }
+                </style>
+            @endif
             <div style="width: 100%">
                 <!--
                 <div style="float: left;position: relative;width:70%">
@@ -98,7 +133,7 @@
                 -->
                 <div style="background-color:#fcfcfc;border-radius: 16px; border: 0.03cm solid black;float: right;position: relative;width: 35%;text-align: center">
                     <b><span style="font-size: 15px">AGRO IMPORT CORONEL</span></b><br>
-                    <span style="font-size: 12px"> RUC: PREGUNTAR</span>
+                    <span style="font-size: 12px"> RUC: 10710988833</span>
                     <div style="background-color:black;width:100%;padding:0.05cm">
                         <span style="font-size: 12px;color:white">N° DOC: {{$data['purchase']->number_doc}}</span>
                     </div>
@@ -165,16 +200,16 @@
                     @if($key%2==0)
                         <tr style="background: #dbdedf">
                             <td colspan="1" style="text-align:center;">{{$detail->product->name}}</td>
-                            <td colspan="1" style="text-align:center;">{{$detail->quantity}}</td>
-                            <td colspan="1" style="text-align:center;">{{sprintf('%.2f',round($detail->price,2))}}</td>
-                            <td colspan="1" style="text-align:center;">{{sprintf('%.2f',round($detail->subtotal,2))}}</td>
+                            <td colspan="1" style="text-align:right;">{{$detail->quantity}}</td>
+                            <td colspan="1" style="text-align:right;">{{sprintf('%.2f',round($detail->price,2))}}</td>
+                            <td colspan="1" style="text-align:right;">{{sprintf('%.2f',round($detail->subtotal,2))}}</td>
                         </tr>
                         @else
                         <tr>
                             <td colspan="1" style="text-align:center;">{{$detail->product->name}}</td>
-                            <td colspan="1" style="text-align:center;">{{$detail->quantity}}</td>
-                            <td colspan="1" style="text-align:center;">{{sprintf('%.2f',round($detail->price,2))}}</td>
-                            <td colspan="1" style="text-align:center;">{{sprintf('%.2f',round($detail->subtotal,2))}}</td>
+                            <td colspan="1" style="text-align:right;">{{$detail->quantity}}</td>
+                            <td colspan="1" style="text-align:right;">{{sprintf('%.2f',round($detail->price,2))}}</td>
+                            <td colspan="1" style="text-align:right;">{{sprintf('%.2f',round($detail->subtotal,2))}}</td>
                         </tr>
                     @endif
                     @endforeach

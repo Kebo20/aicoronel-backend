@@ -308,7 +308,7 @@ class PurchaseController extends Controller
         }
 
         $Purchase = Purchase::findOrFail($id); //busca o falla
-        $detail = PurchaseDetail::where('status', 1)->where('id_purchase', $Purchase->id_purchase)->get();
+        $detail = PurchaseDetail::where('id_purchase', $Purchase->id_purchase)->get();
         $data = array(
             'purchase' => $Purchase,
             'detail' => $detail
@@ -805,7 +805,7 @@ class PurchaseController extends Controller
 
     public function totalForMonth(Request $request)
     {
-        
+
         if (Auth::user()->id_role == 2) {
             return ResourcesPurchase::collection(Purchase::where('id_storage', '1')->where('status', '1')->orderBy('date')->get());
         }
