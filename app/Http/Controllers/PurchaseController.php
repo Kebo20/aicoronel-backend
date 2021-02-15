@@ -61,7 +61,7 @@ class PurchaseController extends Controller
             $validatedData = $request->validate([
                 'date' => 'required|max:255',
                 'type_doc' => 'required',
-                'number_doc' => 'required|numeric',
+                'number_doc' => 'required',
                 'id_provider' => 'required',
                 //'id_storage' => 'required'
             ]);

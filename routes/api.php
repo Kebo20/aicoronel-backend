@@ -66,7 +66,11 @@ Route::group([
         Route::apiResource('sales', 'SaleController');
 
         Route::get('purchases/print/{id}', 'PurchaseController@print');
+        Route::post('purchases/correlativo', 'PurchaseController@correlativo');
         Route::get('purchases/export/{id}', 'PurchaseController@export');
+
+        Route::post('sales/correlativo', 'SaleController@correlativo');
+
         Route::get('sales/print/{id}', 'SaleController@print');
         Route::get('sales/export/{id}', 'SaleController@export');
         Route::post('purchases/printADate', 'PurchaseController@printADate');

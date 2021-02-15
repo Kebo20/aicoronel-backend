@@ -17,7 +17,9 @@ class ProductController extends Controller
     public function store(Request $request) {
         $validatedData = $request->validate([
             'name' => 'required|max:255',
-            'price' => 'required|numeric'
+            'price' => 'required|numeric',
+            'price2' => 'numeric'
+
 
         ]);
 
@@ -38,6 +40,8 @@ class ProductController extends Controller
             $product = new Product();
             $product->name = strip_tags($request->name);
             $product->price = strip_tags($request->price);
+            $product->price2 = strip_tags($request->price2);
+
             $product->brand = strip_tags($request->brand);
             $product->units = strip_tags($request->units);
             $product->id_category =$request->id_category?strip_tags($request->id_category):null;
@@ -56,7 +60,9 @@ class ProductController extends Controller
     public function update(Request $request, $id) {
         $validatedData = $request->validate([
             'name' => 'required|max:255',
-            'price' => 'required|numeric'        ]);
+            'price' => 'required|numeric' ,
+            'price2' => 'numeric'       
+                   ]);
 
             if($request->price<1){
                 return response()->json([
@@ -70,6 +76,7 @@ class ProductController extends Controller
             $product = Product::findOrFail($id);
             $product->name = $request->name;
             $product->price = $request->price;
+            $product->price2 = strip_tags($request->price2);
             $product->brand = $request->brand;
             $product->units = $request->units;
             $product->id_category =$request->id_category?strip_tags($request->id_category):null;

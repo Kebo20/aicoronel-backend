@@ -17,7 +17,10 @@ class Product extends JsonResource
         return [
             'id_product'=>$this->id_product,
             'name'=>htmlspecialchars($this->name),
+            'name_brand'=>$this->brand?htmlspecialchars($this->name.' - '.$this->brand):htmlspecialchars($this->name),
             'price'=>htmlspecialchars($this->price),
+            'price2'=>htmlspecialchars($this->price2),
+
             'brand'=>htmlspecialchars($this->brand),
             'units'=>htmlspecialchars($this->units),
             'id_category'=>$this->id_category,

@@ -16,12 +16,9 @@ class Lot extends JsonResource
     {
         return [
             'quantity'=>htmlspecialchars($this->quantity),
-
             'product_name'=>htmlspecialchars($this->product->name),
-            'category_name'=>htmlspecialchars($this->product->category->name),
-
+            'category_name'=>$this->id_category?htmlspecialchars($this->category->name):'',
             'storage_name'=>htmlspecialchars($this->storage->name),
-
             'status'=>$this->status
         ];
     }

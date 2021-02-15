@@ -31,8 +31,29 @@ class SaleController extends Controller
         }
 
         if (Auth::user()->id_role == 1) {
-            return ResourcesSale::collection(Sale::where('id_storage', '2')->orderBy('date','DESC')->get());
+            return ResourcesSale::collection(Sale::orderBy('date','DESC')->get());
         }
+    }
+
+    public function correlativo(Request $request){
+        $year = date('Y');
+        $count = Sale::whereYear('date', $year)->where('type_doc',$request->type_doc)->count() +1;
+        $lenght=strlen($count);
+        $count= str_pad( $count, 8-$lenght, "0", STR_PAD_LEFT);
+        if($request->type_doc=='FACTURA'){
+            $code = 'FA' . $year . '-' . $count;
+
+        }else
+
+        if($request->type_doc=='BOLETA'){
+            $code='B' . $year . '-' . $count;
+        }else{
+            $code= 'A' . $year . '-' . $count;
+        }
+
+        return response()->json([
+            'code' => $code
+        ], 200);
     }
 
     public function count()
@@ -58,7 +79,7 @@ class SaleController extends Controller
             $valideData = $request->validate([
                 'date' => 'required',
                 'type_doc' => 'required',
-                'number_doc' => 'required',
+                //'number_doc' => 'required',
                 'id_client' => 'required',
                 // 'id_storage' => 'required'
             ]);
@@ -69,12 +90,12 @@ class SaleController extends Controller
                 ], 400);
             }
 
-            $exist_sale = Sale::where('number_doc', $request->number_doc)->where('status', 1)->first();
-            if ($exist_sale != null) {
-                return response()->json([
-                    'message' => 'Ya existe una venta con el mismo número de documento'
-                ], 400);
-            }
+            // $exist_sale = Sale::where('number_doc', $request->number_doc)->first();
+            // if ($exist_sale != null) {
+            //     return response()->json([
+            //         'message' => 'Ya existe una venta con el mismo número'
+            //     ], 400);
+            // }
 
             if (Auth::user()->id_role == 2) {
                 $id_storage = 1;
@@ -111,7 +132,25 @@ class SaleController extends Controller
             $sale->date = strip_tags($request->date);
 
             $sale->type_doc = strip_tags($request->type_doc);
-            $sale->number_doc = strip_tags($request->number_doc);
+
+
+            $year = date('Y');
+            $count = Sale::whereYear('date', $year)->where('type_doc',$request->type_doc)->count() +1;
+            $lenght=strlen($count);
+            $count= str_pad( $count, 8-$lenght, "0", STR_PAD_LEFT);
+            if($request->type_doc=='FACTURA'){
+                $code = 'FA' . $year . '-' . $count;
+
+            }else
+
+            if($request->type_doc=='BOLETA'){
+                $code='B' . $year . '-' . $count;
+            }else{
+                $code= 'A' . $year . '-' . $count;
+            }
+            
+
+            $sale->number_doc = $code;
             $sale->observation = strip_tags($request->observation);
             $sale->id_client = $request->id_client;
             $sale->id_storage = $id_storage;
@@ -128,6 +167,14 @@ class SaleController extends Controller
                     DB::rollBack();
                     return response()->json([
                         'message' => 'Producto no existe'
+                    ], 400);
+                }
+
+                //PRECIOS
+                if ($product->price!=$detail['price']&&$product->price2!=$detail['price']) {
+                    DB::rollBack();
+                    return response()->json([
+                        'message' => 'Precio ingresado no permitido para: '.$product->name
                     ], 400);
                 }
 
@@ -347,7 +394,7 @@ class SaleController extends Controller
             $id_storage = $request->id_storage;
         }
 
-        $Sale = Sale::where('date', $request->date)->where('id_storage', $id_storage)->get();
+        $Sale = Sale::where('date', $request->date)->where('id_storage', $id_storage)->where('status',1)->get();
         $storage = Storage::findOrFail($id_storage);
         if ($Sale == null || $Sale->count() == 0) {
             return response()->json([
@@ -389,7 +436,7 @@ class SaleController extends Controller
             $id_storage = $request->id_storage;
         }
 
-        $Sale = Sale::whereBetween('date', $request->date)->where('id_storage', $id_storage)->orderBy('date')->get();
+        $Sale = Sale::whereBetween('date', $request->date)->where('id_storage', $id_storage)->where('status',1)->orderBy('date')->get();
         $storage = Storage::findOrFail($id_storage);
         if ($Sale == null || $Sale->count() == 0) {
             return response()->json([
@@ -433,7 +480,7 @@ class SaleController extends Controller
         }
 
         $year = date("Y");
-        $Sale = Sale::whereMonth('date', $request->date)->whereYear('date', $year)->where('id_storage', $id_storage)->orderBy('date')->get();
+        $Sale = Sale::whereMonth('date', $request->date)->whereYear('date', $year)->where('id_storage', $id_storage)->where('status',1)->orderBy('date')->get();
         $storage = Storage::findOrFail($id_storage);
         if ($Sale == null || $Sale->count() == 0) {
             return response()->json([
@@ -599,7 +646,7 @@ class SaleController extends Controller
             }
 
 
-            $Sale = Sale::where('date', $request->date)->where('id_storage', $id_storage)->get();
+            $Sale = Sale::where('date', $request->date)->where('id_storage', $id_storage)->where('status',1)->get();
             $storage = Storage::findOrFail($id_storage);
             if ($Sale == null || $Sale->count() == 0) {
                 return response()->json([
@@ -669,7 +716,7 @@ class SaleController extends Controller
             }
 
 
-            $Sale = Sale::whereBetween('date', $request->date)->where('id_storage', $id_storage)->orderBy('date')->get();
+            $Sale = Sale::whereBetween('date', $request->date)->where('id_storage', $id_storage)->where('status',1)->orderBy('date')->get();
             $storage = Storage::findOrFail($id_storage);
             if ($Sale == null || $Sale->count() == 0) {
                 return response()->json([
@@ -738,7 +785,7 @@ class SaleController extends Controller
             }
 
             $year = date("Y");
-            $Sale = Sale::whereMonth('date', $request->date)->whereYear('date', $year)->where('id_storage', $id_storage)->orderBy('date')->get();
+            $Sale = Sale::whereMonth('date', $request->date)->whereYear('date', $year)->where('status',1)->where('id_storage', $id_storage)->orderBy('date')->get();
             $storage = Storage::findOrFail($id_storage);
             if ($Sale == null || $Sale->count() == 0) {
                 return response()->json([
