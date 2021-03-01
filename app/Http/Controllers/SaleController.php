@@ -148,7 +148,7 @@ class SaleController extends Controller
             }else{
                 $code= 'A' . $year . '-' . $count;
             }
-            
+
 
             $sale->number_doc = $code;
             $sale->observation = strip_tags($request->observation);
@@ -565,9 +565,14 @@ class SaleController extends Controller
     public function export($id)
     {
         try {
-            $path_real = 'excel/SaleExport.xlsx'; //lee como plantilla
+            $Sale = Sale::findOrFail($id); //busca o falla
+            if($Sale->status == 1) {
+                $path_real = 'excel/SaleExport.xlsx'; //lee como plantilla
             $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($path_real);
-
+            } else {
+                $path_real = 'excel/SaleAnulada.xlsx'; //lee como plantilla
+                $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($path_real);
+            }
             $worksheet = $spreadsheet->getActiveSheet();
 
             if (!$id) {
