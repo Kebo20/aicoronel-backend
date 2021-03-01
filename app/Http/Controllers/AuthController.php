@@ -60,13 +60,13 @@ class AuthController extends Controller
                 'message' => 'Credenciales incorrectas'
             ], 401);
         $user = $request->user();
-        /*
+        
         if($user->status == 0){
             return response()->json([
                 'message' => 'Usuario Inactivo'
             ], 401);
         }
-        */
+        
         $tokenResult = $user->createToken('Personal Access Token');
         $token = $tokenResult->token;
         if ($request->remember_me)

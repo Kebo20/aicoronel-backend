@@ -13,7 +13,7 @@ class UserController extends Controller
     //
     public function index()
     {
-        return ResourcesUser::collection(User::where("status", 1)->get());
+        return ResourcesUser::collection(User::get());
     }
 
     public function store(Request $request)
@@ -25,7 +25,7 @@ class UserController extends Controller
                 'string',
                 'min:8',             // must be at least 10 characters in length
                 'regex:/[a-zA-Z]/',      // must contain at least one lowercase letter
-               // 'regex:/[A-Z]/',      // must contain at least one uppercase letter
+                // 'regex:/[A-Z]/',      // must contain at least one uppercase letter
                 'regex:/[0-9]/',      // must contain at least one digit
                 //'regex:/[@$!%*#?&]/', // must contain a special character
             ],
@@ -42,7 +42,7 @@ class UserController extends Controller
 
         $user = new User();
         $user->name = strip_tags($request->name);
-        $user->email = strip_tags($request->email);
+        // $user->email = strip_tags($request->email);
         $user->password = Hash::make(strip_tags($request->password));
         $user->id_role = $request->id_role;
         $user->created_by = auth()->id();
@@ -59,7 +59,7 @@ class UserController extends Controller
 
     public function update(Request $request, $id)
     {
-        if($request->password!=''){
+        if ($request->updatePassword) {
             $validatedData = $request->validate([
                 'name' => 'required|max:255',
                 'password' => [
@@ -67,27 +67,29 @@ class UserController extends Controller
                     'string',
                     'min:8',             // must be at least 10 characters in length
                     'regex:/[a-zA-Z]/',      // must contain at least one lowercase letter
-                   // 'regex:/[A-Z]/',      // must contain at least one uppercase letter
+                    // 'regex:/[A-Z]/',      // must contain at least one uppercase letter
                     'regex:/[0-9]/',      // must contain at least one digit
                     //'regex:/[@$!%*#?&]/', // must contain a special character
                 ],
             ]);
-        }else{
+        } else {
             $validatedData = $request->validate([
                 'name' => 'required|max:255',
-                
+
             ]);
-    
         }
 
-      
-      
+
+
         DB::beginTransaction();
 
         $user = User::findOrFail($id);
         $user->name = strip_tags($request->name);
-        $user->email = strip_tags($request->email);
-        $user->password = Hash::make(strip_tags($request->password));
+        // $user->email = strip_tags($request->email);
+
+        if ($request->updatePassword) {
+            $user->password = Hash::make(strip_tags($request->password));
+        }
         $user->id_role = strip_tags($request->id_role);
         $user->updated_by = auth()->id();
         $user->save();
