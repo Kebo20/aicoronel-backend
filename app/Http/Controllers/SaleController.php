@@ -582,7 +582,7 @@ class SaleController extends Controller
             }
 
             $Sale = Sale::findOrFail($id); //busca o falla
-            $detail = SaleDetail::where('status', 1)->where('id_sale', $Sale->id_sale)->get();
+            $detail = SaleDetail::where('id_sale', $Sale->id_sale)->get();
 
             $worksheet->getCell('G8')->setValue(date('d/m/Y', strtotime($Sale->date)));
             $worksheet->getCell('G9')->setValue($Sale->type_doc);
