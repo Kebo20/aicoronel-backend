@@ -13,7 +13,7 @@ class UserController extends Controller
     //
     public function index()
     {
-        return ResourcesUser::collection(User::get());
+        return ResourcesUser::collection(User::where('status',1)->get());
     }
 
     public function store(Request $request)
