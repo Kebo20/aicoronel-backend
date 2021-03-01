@@ -513,8 +513,14 @@ class PurchaseController extends Controller
     public function export($id)
     {
         try {
-            $path_real = 'excel/PurchaseExport.xlsx'; //lee como plantilla
-            $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($path_real);
+            $Purchase = Purchase::findOrFail($id); //busca o falla
+            if($Purchase->status == 1) {
+                $path_real = 'excel/PurchaseExport.xlsx'; //lee como plantilla
+                $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($path_real);
+            } else {
+                $path_real = 'excel/PurchaseAnulada.xlsx'; //lee como plantilla
+                $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($path_real);
+            }
 
             $worksheet = $spreadsheet->getActiveSheet();
 
@@ -524,9 +530,7 @@ class PurchaseController extends Controller
                 ], 400);
             }
 
-
-            $Purchase = Purchase::findOrFail($id); //busca o falla
-            $detail = PurchaseDetail::where('id_purchase', $Purchase->id_purchase)->get();
+            $detail = PurchaseDetail::where('status', 1)->where('id_purchase', $Purchase->id_purchase)->get();
 
             $worksheet->getCell('F8')->setValue(date('d/m/Y', strtotime($Purchase->date)));
             $worksheet->getCell('F9')->setValue($Purchase->type_doc);
@@ -826,7 +830,7 @@ class PurchaseController extends Controller
 
         // }
 
-      
+
         $year = date("Y");
 
         if (Auth::user()->id_role == 2) {
