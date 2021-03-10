@@ -36,7 +36,12 @@ class SaleController extends Controller
     }
 
     public function correlativo(Request $request){
-        $year = date('Y');
+        if($request->date!=''&&$request->date!=null&&$request->date){
+            $year = date_create_from_format('Y-m-d', $request->date)->format('Y');
+
+        }else{
+            $year=date('Y');
+        }
         $count = Sale::whereYear('date', $year)->where('type_doc',$request->type_doc)->count() +1;
         $lenght=strlen($count);
         $count= str_pad( $count, 8-$lenght, "0", STR_PAD_LEFT);
@@ -134,7 +139,8 @@ class SaleController extends Controller
             $sale->type_doc = strip_tags($request->type_doc);
 
 
-            $year = date('Y');
+            $year = date_create_from_format('Y-m-d', $request->date)->format('Y');
+            
             $count = Sale::whereYear('date', $year)->where('type_doc',$request->type_doc)->count() +1;
             $lenght=strlen($count);
             $count= str_pad( $count, 8-$lenght, "0", STR_PAD_LEFT);
@@ -902,21 +908,21 @@ class SaleController extends Controller
         if (Auth::user()->id_role == 2) {
             // return ResourcesPurchase::collection(Purchase::where('id_storage', '1')->where('status', '1')->orderBy('date')->get());
             DB::select("SET lc_time_names = 'es_ES';");
-           return DB::select("select DATE_FORMAT(date, '%M')  as month,SUM(total) as total from sales where id_storage='1' and YEAR(date)=".$year." and status=1 GROUP BY MONTH(date),month  ORDER BY MONTH(date) ASC");
+           return DB::select("select DATE_FORMAT(date, '%M %Y')  as month,SUM(total) as total from sales where id_storage='1' and YEAR(date)=".$year." and status=1 GROUP BY MONTH(date),month  ORDER BY MONTH(date) ASC LIMIT 12");
 
         }
 
         if (Auth::user()->id_role == 3) {
             DB::select("SET lc_time_names = 'es_ES';");
             // return ResourcesPurchase::collection(Purchase::where('id_storage', '2')->where('status', '1')->orderBy('date')->get());
-           return DB::select("select DATE_FORMAT(date, '%M')  as month,SUM(total) as total from sales where id_storage='2' and YEAR(date)=".$year." and status=1 GROUP BY MONTH(date),month  ORDER BY MONTH(date) ASC");
+           return DB::select("select DATE_FORMAT(date, '%M %Y')  as month,SUM(total) as total from sales where id_storage='2' and YEAR(date)=".$year." and status=1 GROUP BY MONTH(date),month  ORDER BY MONTH(date) ASC LIMIT 12");
 
         }
 
         if (Auth::user()->id_role == 1) {
             DB::select("SET lc_time_names = 'es_ES';");
            // return ResourcesPurchase::collection(Purchase::where('status', '1')->orderBy('date')->get());
-           return DB::select("select DATE_FORMAT(date, '%M')  as month,SUM(total) as total from sales where  YEAR(date)=".$year." and status=1 GROUP BY MONTH(date),month  ORDER BY MONTH(date) ASC");
+           return DB::select("select DATE_FORMAT(date, '%M %Y')  as month,SUM(total) as total from sales where  YEAR(date)=".$year." and status=1 GROUP BY MONTH(date),month  ORDER BY MONTH(date) ASC LIMIT 12");
 
         }
     }
