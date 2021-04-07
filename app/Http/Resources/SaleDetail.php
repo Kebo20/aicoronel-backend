@@ -20,7 +20,7 @@ class SaleDetail extends JsonResource
             'price'=>sprintf('%.2f',(htmlspecialchars($this->price))),
             'quantity'=>sprintf('%.2f',(htmlspecialchars($this->quantity))),
             'discount'=>sprintf('%.2f',(htmlspecialchars($this->discount))),
-            'product_name'=>htmlspecialchars($this->product->name),
+            'product_name'=>htmlspecialchars($this->product->code).' '.htmlspecialchars($this->product->name),
             'status'=>$this->status
         ];
     }

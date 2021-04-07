@@ -19,7 +19,7 @@ class PurchaseDetail extends JsonResource
             'subtotal'=>sprintf('%.2f',(htmlspecialchars($this->subtotal))),
             'price'=>sprintf('%.2f',(htmlspecialchars($this->price))),
             'quantity'=>sprintf('%.2f',(htmlspecialchars($this->quantity))),
-            'product_name'=>htmlspecialchars($this->product->name),
+            'product_name'=>htmlspecialchars($this->product->code).' '.htmlspecialchars($this->product->name),
             'status'=>$this->status
         ];
     }

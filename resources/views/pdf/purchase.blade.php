@@ -189,6 +189,7 @@
             <table class="table_assistance">
                 <thead>
                     <tr>
+                        <th style="background:#1b1b1c; text-align:center; color:white">CÓDIGO</th>
                         <th style="background:#1b1b1c; text-align:center; color:white">PRODUCTO</th>
                         <th style="background:#1b1b1c; text-align:center; color:white">CANT</th>
                         <th style="background:#1b1b1c; text-align:center; color:white">PREC</th>
@@ -199,6 +200,7 @@
                     @foreach($data['detail'] as $key => $detail)
                     @if($key%2==0)
                         <tr style="background: #dbdedf">
+                            <td colspan="1" style="text-align:center;">{{$detail->product->code}}</td>
                             <td colspan="1" style="text-align:center;">{{$detail->product->name}}</td>
                             <td colspan="1" style="text-align:right;">{{$detail->quantity}}</td>
                             <td colspan="1" style="text-align:right;">{{sprintf('%.2f',round($detail->price,2))}}</td>
@@ -206,6 +208,7 @@
                         </tr>
                         @else
                         <tr>
+                        <td colspan="1" style="text-align:center;">{{$detail->product->code}}</td>
                             <td colspan="1" style="text-align:center;">{{$detail->product->name}}</td>
                             <td colspan="1" style="text-align:right;">{{$detail->quantity}}</td>
                             <td colspan="1" style="text-align:right;">{{sprintf('%.2f',round($detail->price,2))}}</td>
@@ -214,15 +217,15 @@
                     @endif
                     @endforeach
                     <tr>
-                        <td colspan="3" style="text-align:right;font-weight:bold;">IGV</td>
+                        <td colspan="4" style="text-align:right;font-weight:bold;">IGV</td>
                         <td colspan="1" style="font-weight:bold;background:#1b1b1c;color:white;text-align:right;font-size:13px"><b>S/. {{sprintf('%.2f',round($data['purchase']->igv,2))}}</b></td>
                     </tr>
                     <tr>
-                        <td colspan="3" style="text-align:right;font-weight:bold;">SUBTOTAL</td>
+                        <td colspan="4" style="text-align:right;font-weight:bold;">SUBTOTAL</td>
                         <td colspan="1" style="font-weight:bold;background:#1b1b1c;color:white;text-align:right;font-size:13px"><b>S/. {{sprintf('%.2f',round($data['purchase']->subtotal,2))}}</b></td>
                     </tr>
                     <tr>
-                        <td colspan="3" style="text-align:right;font-weight:bold;">TOTAL</td>
+                        <td colspan="4" style="text-align:right;font-weight:bold;">TOTAL</td>
                         <td colspan="1" style="font-weight:bold;background:#1b1b1c;color:white;text-align:right;font-size:13px"><b>S/. {{sprintf('%.2f',round($data['purchase']->total,2))}}</b></td>
                     </tr>
                 </tbody>
