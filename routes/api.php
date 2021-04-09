@@ -48,6 +48,10 @@ Route::group([
             Route::apiResource('users', 'UserController');
             Route::apiResource('purchases', 'PurchaseController');
 
+            Route::post('lots/add', 'LotController@add');
+            Route::post('lots/remove', 'LotController@remove');
+
+            Route::get('lots/moves-product-initial/{id}', 'LotController@listMovementInitialByStorage');
         });
 
 
@@ -94,8 +98,6 @@ Route::group([
 
         Route::post('purchases/totalForMonth', 'PurchaseController@totalForMonth');
         Route::post('sales/totalForMonth', 'SaleController@totalForMonth');
-
-
     });
 });
 
