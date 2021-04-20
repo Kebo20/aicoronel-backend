@@ -176,8 +176,17 @@ class SaleController extends Controller
                     ], 400);
                 }
 
+                if ($detail['quantity'] <= 0) {
+                    DB::rollBack();
+
+                    return response()->json([
+                        'message' => 'Cantidad no válida para ' . $product->name,
+                    ], 400);
+                }
+
+             
                 //PRECIOS
-                if ($product->price!=$detail['price']&&$product->price2!=$detail['price']) {
+                if ($product->price!=$detail['price']&&$product->price2!=$detail['price']&&$product->price_min!=$detail['price']) {
                     DB::rollBack();
                     return response()->json([
                         'message' => 'Precio ingresado no permitido para: '.$product->name

@@ -20,8 +20,10 @@ class PurchaseDetail extends JsonResource
             'price'=>sprintf('%.2f',(htmlspecialchars($this->price))),
             'quantity'=>sprintf('%.2f',(htmlspecialchars($this->quantity))),
             'product_name'=>htmlspecialchars($this->product->code).' '.htmlspecialchars($this->product->name),
+            'id_product'=>($this->id_product),
+            'id_lot'=>($this->id_lot),
             'status'=>$this->status,
-            'purchase'=>new Purchase($this->purchase)
+            // 'purchase'=>new Purchase($this->purchase)
         ];
     }
 }

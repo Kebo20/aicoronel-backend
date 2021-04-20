@@ -537,7 +537,7 @@ class PurchaseController extends Controller
         }
 
         $Purchase = Purchase::findOrFail($id); //busca o falla
-        $detail = PurchaseDetail::where('id_purchase', $Purchase->id_purchase)->get();
+        $detail = PurchaseDetail::where('id_purchase', $Purchase->id_purchase)->where('status',1)->get();
         $data = array(
             'purchase' => $Purchase,
             'detail' => $detail
@@ -759,7 +759,7 @@ class PurchaseController extends Controller
                 ], 400);
             }
 
-            $detail = PurchaseDetail::where('id_purchase', $Purchase->id_purchase)->get();
+            $detail = PurchaseDetail::where('id_purchase', $Purchase->id_purchase)->where('status',1)->get();
 
             $worksheet->getCell('F8')->setValue(date('d/m/Y', strtotime($Purchase->date)));
             $worksheet->getCell('F9')->setValue($Purchase->type_doc);

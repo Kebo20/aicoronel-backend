@@ -52,6 +52,7 @@ Route::group([
             Route::post('lots/remove', 'LotController@remove');
 
             Route::get('lots/moves-product-initial/{id}', 'LotController@listMovementInitialByStorage');
+            Route::post('purchases/searchPurchaseByProduct', 'PurchaseController@searchPurchaseByProduct');
         });
 
 
@@ -98,9 +99,6 @@ Route::group([
 
         Route::post('purchases/totalForMonth', 'PurchaseController@totalForMonth');
         Route::post('sales/totalForMonth', 'SaleController@totalForMonth');
-
-        Route::post('purchases/searchPurchaseByProduct', 'PurchaseController@searchPurchaseByProduct');
-
     });
 });
 

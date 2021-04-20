@@ -16,8 +16,8 @@ class Purchase extends JsonResource
     {
         return [
             'id_purchase'=>$this->id_purchase,
-            'date'=>htmlspecialchars(date_create_from_format('Y-m-d', $this->date)->format('d/m/Y')),
-            
+            'date'=>(date_create_from_format('Y-m-d', $this->date)->format('d/m/Y')),
+            'date_original'=>$this->date,
             'subtotal'=>sprintf('%.2f',(htmlspecialchars($this->subtotal))),
             'igv'=>sprintf('%.2f',(htmlspecialchars($this->igv))),
             'total'=>sprintf('%.2f',(htmlspecialchars($this->total))),
@@ -28,7 +28,7 @@ class Purchase extends JsonResource
             'provider_name'=>htmlspecialchars($this->provider->name),
             'id_storage'=>$this->id_storage,
             'storage_name'=>htmlspecialchars($this->storage->name),
-            'detail'=>PurchaseDetail::collection($this->purchasesDetail),
+            'detail'=>PurchaseDetail::collection($this->purchasesDetail->where('status',1)),
             'status'=>$this->status
         ];
     }
