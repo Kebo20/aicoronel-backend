@@ -50,6 +50,7 @@ class ProductController extends Controller
         $product->name = strip_tags($request->name);
         $product->price = strip_tags($request->price);
         $product->price2 = $request->price2 ? strip_tags($request->price2) : '0';
+        $product->price_min = $request->price_min ? strip_tags($request->price_min) : '0';
         $product->brand = strip_tags($request->brand);
         $product->units = strip_tags($request->units);
         $product->id_category = $request->id_category ? strip_tags($request->id_category) : null;
@@ -86,6 +87,7 @@ class ProductController extends Controller
         $product->code = strip_tags($request->code);
         $product->price = strip_tags($request->price);
         $product->price2 = $request->price2 ? strip_tags($request->price2) : '0';
+        $product->price_min = $request->price_min ? strip_tags($request->price_min) : '0';
         $product->brand = strip_tags($request->brand);
         $product->units = "";
         $product->id_category = $request->id_category ? strip_tags($request->id_category) : null;

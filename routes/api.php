@@ -98,6 +98,9 @@ Route::group([
 
         Route::post('purchases/totalForMonth', 'PurchaseController@totalForMonth');
         Route::post('sales/totalForMonth', 'SaleController@totalForMonth');
+
+        Route::post('purchases/searchPurchaseByProduct', 'PurchaseController@searchPurchaseByProduct');
+
     });
 });
 

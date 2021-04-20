@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\Purchase as ResourcesPurchase;
+use App\Http\Resources\PurchaseDetail as ResourcesPurchaseDetail;
 use App\Lot;
 use App\MoveProduct;
 use App\Product;
@@ -24,18 +25,24 @@ class PurchaseController extends Controller
     {
         if (Auth::user()->id_role == 2) {
 
-            return ResourcesPurchase::collection(Purchase::where('id_storage', '1')->orderBy('date','DESC')->get());
+            return ResourcesPurchase::collection(Purchase::where('id_storage', '1')->orderBy('date', 'DESC')->get());
         }
 
         if (Auth::user()->id_role == 3) {
 
-            return ResourcesPurchase::collection(Purchase::where('id_storage', '2')->orderBy('date','DESC')->get());
+            return ResourcesPurchase::collection(Purchase::where('id_storage', '2')->orderBy('date', 'DESC')->get());
         }
 
         if (Auth::user()->id_role == 1) {
 
-            return ResourcesPurchase::collection(Purchase::orderBy('date','DESC')->get());
+            return ResourcesPurchase::collection(Purchase::orderBy('date', 'DESC')->get());
         }
+    }
+    public function searchPurchaseByProduct(Request $request)
+    {
+        return ResourcesPurchaseDetail::collection(PurchaseDetail::where('id_product', $request->id_product)
+            ->where('status', 1)
+            ->orderBy('date', 'DESC')->get());
     }
     public function count()
     {
@@ -55,6 +62,8 @@ class PurchaseController extends Controller
             return Purchase::where('status', '1')->count();
         }
     }
+
+
     public function store(Request $request)
     {
         try {
@@ -130,6 +139,7 @@ class PurchaseController extends Controller
             $purchase->id_provider = $request->id_provider;
             $purchase->id_storage = $id_storage;
             $purchase->created_by = auth()->id();
+            $purchase->created_at = date('Y-m-d H:i:s');
             $purchase->updated_by = auth()->id();
             $purchase->save();
 
@@ -141,29 +151,47 @@ class PurchaseController extends Controller
                         'message' => 'Producto no existe'
                     ], 400);
                 }
+                if ($detail['quantity'] <= 0) {
+                    DB::rollBack();
+
+                    return response()->json([
+                        'message' => 'Cantidad no válida para ' . $product->name,
+                    ], 400);
+                }
+
+                if ($detail['price'] <= 0) {
+                    DB::rollBack();
+
+                    return response()->json([
+                        'message' => 'Precio no válido para ' . $product->name,
+                    ], 400);
+                }
 
                 $lot_old = Lot::where('id_product', $detail['id_product'])->where('id_storage', $purchase->id_storage)->first();
                 if ($lot_old == null) {
                     $lot_new = new Lot();
-                    $lot_new->quantity = $detail['quantity'];
-                    $lot_new->id_product = $detail['id_product'];
+                    $lot_new->quantity = strip_tags($detail['quantity']);
+                    $lot_new->id_product = strip_tags($detail['id_product']);
                     $lot_new->id_storage = $request->id_storage;
                     $lot_new->created_by = auth()->id();
+                    $lot_new->created_at = date('Y-m-d H:i:s');
                     $lot_new->updated_by = auth()->id();
                     $lot_new->save();
 
                     $lot = $lot_new;
                 } else {
-                    $lot_old->quantity += $detail['quantity'];
+                    $lot_old->quantity += strip_tags($detail['quantity']);
                     $lot_old->updated_by = auth()->id();
+                    $lot_old->updated_at = date('Y-m-d H:i:s');
+
                     $lot_old->save();
 
                     $lot = $lot_old;
                 }
 
                 $purchase_detail = new PurchaseDetail();
-                $purchase_detail->quantity = $detail['quantity'];
-                $purchase_detail->price = $detail['price'];
+                $purchase_detail->quantity = strip_tags($detail['quantity']);
+                $purchase_detail->price = strip_tags($detail['price']);
                 $purchase_detail->subtotal = $detail['quantity'] * $detail['price'];
                 $purchase_detail->id_purchase = $purchase->id_purchase;
                 $purchase_detail->id_product = $product->id_product;
@@ -176,14 +204,15 @@ class PurchaseController extends Controller
                 $move_product->date = $purchase->date;
                 $move_product->type = "entrada";
                 $move_product->stock = $lot->quantity;
-                $move_product->quantity = $detail['quantity'];
-                $move_product->price = $detail['price'];
+                $move_product->quantity = strip_tags($detail['quantity']);
+                $move_product->price = strip_tags($detail['price']);
                 $move_product->total_cost = $detail['price'] * $detail['quantity'];
                 $move_product->table_reference = "purchases";
                 $move_product->id_product = $product->id_product;
                 $move_product->id_lot = $lot->id_lot;
                 $move_product->id_reference = $purchase->id_purchase;
                 $move_product->created_by = auth()->id();
+                $move_product->created_at = date('Y-m-d H:i:s');
                 $move_product->updated_by = auth()->id();
                 $move_product->save();
             }
@@ -201,17 +230,217 @@ class PurchaseController extends Controller
         }
     }
 
+    public function update(Request $request, $id)
+    {
+        try {
+            $validatedData = $request->validate([
+                'date' => 'required|max:255',
+                'type_doc' => 'required',
+                'number_doc' => 'required',
+                'id_provider' => 'required',
+                'id_storage' => 'required'
+            ]);
+
+            if ($request->details == null || $request->details == []) {
+                return response()->json([
+                    'message' => 'No se ha ingresado ningún compra.'
+                ], 400);
+            }
+
+            $purchase = Purchase::where('id_purchase', $id)->where('status', 1)->first();
+            if ($purchase == null) {
+                return response()->json([
+                    'message' => 'No se puede editar esta compra.'
+                ], 400);
+            }
+
+            // if (Auth::user()->id_role == 2) {
+            //     $id_storage = 1;
+            // }
+
+            // if (Auth::user()->id_role == 3) {
+            //     $id_storage = 2;
+            // }
+
+            if (Auth::user()->id_role == 1) {
+                $id_storage = $request->id_storage;
+            } else {
+                return response()->json([
+                    'message' => 'No puede editar esta compra.'
+                ], 400);
+            }
+
+            DB::beginTransaction();
+
+            //Deshacer cambios 
+            $a_purchase_detail = PurchaseDetail::where('id_purchase', $purchase->id_purchase)->where('status', 1)->get();
+            foreach ($a_purchase_detail as $detail) {
+                $p_d = PurchaseDetail::where('id_purchase_detail', $detail['id_purchase_detail'])->where('status', 1)->firstOrFail();
+                if ($p_d == null) {
+                    DB::rollBack();
+                    return response()->json([
+                        'message' => 'Detalle Compra no existe'
+                    ], 400);
+                }
+                $p_d->status = 0;
+                $p_d->updated_by = auth()->id();
+                $p_d->save();
+                $lot_old = Lot::findOrfail($p_d->id_lot);
+                $lot_old->quantity -= $p_d->quantity;
+                $lot_old->updated_by = auth()->id();
+                $lot_old->updated_at = date('Y-m-d H:i:s');
+                $lot_old->save();
+
+                $move_product = new MoveProduct();
+                $move_product->date = strip_tags($request->date);
+                $move_product->type = "salida";
+                $move_product->stock = $lot_old->quantity;
+                $move_product->quantity = $p_d->quantity;
+                $move_product->price = $p_d->price;
+                $move_product->total_cost = $p_d->price * $p_d->quanty;
+                $move_product->table_reference = "purchases";
+                $move_product->id_product = $p_d->id_product;
+                $move_product->id_lot = $lot_old->id_lot;
+                $move_product->id_reference = $purchase->id_purchase;
+                $move_product->created_by = auth()->id();
+                $move_product->created_at = date('Y-m-d H:i:s');
+                $move_product->updated_by = auth()->id();
+                $move_product->save();
+            }
+
+
+            //Cálculo del total
+            $total = 0;
+            foreach ($request->details as $detail) {
+                //$sub = 0;
+                $sub = strip_tags($detail['price']) * strip_tags($detail['quantity']);
+                $total = $total + $sub;
+            }
+            $subtotal = $total / (1.18);
+            $IGVamount = $total - $subtotal;
+
+            $provider = Provider::where('id_provider', $request->id_provider)->where('status', 1)->first();
+            if ($provider == null) {
+                DB::rollBack();
+                return response()->json([
+                    'message' => 'Proveedor no existe'
+                ], 400);
+            }
+
+            $storage = Storage::where('id_storage', $request->id_storage)->where('status', 1)->first();
+            if ($storage == null) {
+                DB::rollBack();
+                return response()->json([
+                    'message' => 'Almacén no existe'
+                ], 400);
+            }
+
+            $purchase->date = strip_tags($request->date);
+            $purchase->subtotal = $subtotal;
+            $purchase->igv = $IGVamount;
+            $purchase->total = $total;
+            $purchase->type_doc = strip_tags($request->type_doc);
+            $purchase->number_doc = strip_tags($request->number_doc);
+            $purchase->observation = strip_tags($request->observation);
+            $purchase->id_provider = $request->id_provider;
+            $purchase->id_storage = $id_storage;
+            $purchase->updated_at = date('Y-m-d H:i:s');
+            $purchase->updated_by = auth()->id();
+            $purchase->save();
+
+            foreach ($request->details as $detail) {
+                $product = Product::where('id_product', $detail['id_product'])->where('status', 1)->first();
+                if ($product == null) {
+                    DB::rollBack();
+                    return response()->json([
+                        'message' => 'Producto no existe'
+                    ], 400);
+                }
+
+                if ($detail['quantity'] <= 0) {
+                    DB::rollBack();
+
+                    return response()->json([
+                        'message' => 'Cantidad no válida para ' . $product->name,
+                    ], 400);
+                }
+
+                if ($detail['price'] <= 0) {
+                    DB::rollBack();
+
+                    return response()->json([
+                        'message' => 'Precio no válido para ' . $product->name,
+                    ], 400);
+                }
+
+                $lot_old = Lot::where('id_product', $detail['id_product'])->where('id_storage', $purchase->id_storage)->first();
+                if ($lot_old == null) {
+                    $lot_new = new Lot();
+                    $lot_new->quantity = strip_tags($detail['quantity']);
+                    $lot_new->id_product = strip_tags($detail['id_product']);
+                    $lot_new->id_storage = $request->id_storage;
+                    $lot_new->created_by = auth()->id();
+                    $lot_new->created_at = date('Y-m-d H:i:s');
+                    $lot_new->updated_by = auth()->id();
+                    $lot_new->save();
+
+                    $lot = $lot_new;
+                } else {
+                    $lot_old->quantity += strip_tags($detail['quantity']);
+                    $lot_old->updated_by = auth()->id();
+                    $lot_old->updated_at = date('Y-m-d H:i:s');
+                    $lot_old->save();
+
+                    $lot = $lot_old;
+                }
+
+                $purchase_detail = new PurchaseDetail();
+                $purchase_detail->quantity = strip_tags($detail['quantity']);
+                $purchase_detail->price = strip_tags($detail['price']);
+                $purchase_detail->subtotal = $detail['quantity'] * $detail['price'];
+                $purchase_detail->id_purchase = $purchase->id_purchase;
+                $purchase_detail->id_product = $product->id_product;
+                $purchase_detail->id_lot = $lot->id_lot;
+                $purchase_detail->created_by = auth()->id();
+                $purchase_detail->updated_by = auth()->id();
+                $purchase_detail->save();
+
+                $move_product = new MoveProduct();
+                $move_product->date = strip_tags($request->date);
+                $move_product->type = "entrada";
+                $move_product->stock = $lot->quantity;
+                $move_product->quantity = strip_tags($detail['quantity']);
+                $move_product->price = strip_tags($detail['price']);
+                $move_product->total_cost = $detail['price'] * $detail['quantity'];
+                $move_product->table_reference = "purchases";
+                $move_product->id_product = $product->id_product;
+                $move_product->id_lot = $lot->id_lot;
+                $move_product->id_reference = $purchase->id_purchase;
+                $move_product->created_by = auth()->id();
+                $move_product->created_at = date('Y-m-d H:i:s');
+                $move_product->updated_by = auth()->id();
+                $move_product->save();
+            }
+
+            DB::commit();
+            return response()->json([
+                'message' => 'Compra actualizada correctamente.',
+            ], 200);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Excepcion ' . $e->getMessage()
+            ],  500);
+        }
+    }
+
+
     public function destroy($id)
     {
 
 
-
         try {
-            /*
-            return response()->json([
-                'message' => date("Y-m-d H:i:s")
-            ]);
-            */
+
             DB::beginTransaction();
             $purchase = Purchase::where('id_purchase', $id)->where('status', 1)->first();
             if ($purchase == null) {
@@ -514,7 +743,7 @@ class PurchaseController extends Controller
     {
         try {
             $Purchase = Purchase::findOrFail($id); //busca o falla
-            if($Purchase->status == 1) {
+            if ($Purchase->status == 1) {
                 $path_real = 'excel/PurchaseExport.xlsx'; //lee como plantilla
                 $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($path_real);
             } else {
@@ -836,24 +1065,20 @@ class PurchaseController extends Controller
         if (Auth::user()->id_role == 2) {
             // return ResourcesPurchase::collection(Purchase::where('id_storage', '1')->where('status', '1')->orderBy('date')->get());
             DB::select("SET lc_time_names = 'es_ES';");
-           return DB::select("select DATE_FORMAT(date, '%M %Y')  as month,SUM(total) as total from purchases where id_storage='1' and YEAR(date)=".$year." and status=1 GROUP BY MONTH(date),month  ORDER BY MONTH(date) ASC LIMIT 12");
-
+            return DB::select("select DATE_FORMAT(date, '%M %Y')  as month,SUM(total) as total from purchases where id_storage='1' and YEAR(date)=" . $year . " and status=1 GROUP BY MONTH(date),month  ORDER BY MONTH(date) ASC LIMIT 12");
         }
 
         if (Auth::user()->id_role == 3) {
             DB::select("SET lc_time_names = 'es_ES';");
 
             // return ResourcesPurchase::collection(Purchase::where('id_storage', '2')->where('status', '1')->orderBy('date')->get());
-           return DB::select("select DATE_FORMAT(date, '%M %Y')  as month,SUM(total) as total from purchases where id_storage='2'and YEAR(date)=".$year." and status=1 GROUP BY MONTH(date),month  ORDER BY MONTH(date) ASC LIMIT 12");
-
+            return DB::select("select DATE_FORMAT(date, '%M %Y')  as month,SUM(total) as total from purchases where id_storage='2'and YEAR(date)=" . $year . " and status=1 GROUP BY MONTH(date),month  ORDER BY MONTH(date) ASC LIMIT 12");
         }
 
         if (Auth::user()->id_role == 1) {
-           // return ResourcesPurchase::collection(Purchase::where('status', '1')->orderBy('date')->get());
-           DB::select("SET lc_time_names = 'es_ES';");
-           return DB::select("select DATE_FORMAT(date, '%M %Y')  as month,SUM(total) as total from purchases where  YEAR(date)=".$year." and status=1 GROUP BY MONTH(date),month  ORDER BY MONTH(date) ASC LIMIT 12");
-
+            // return ResourcesPurchase::collection(Purchase::where('status', '1')->orderBy('date')->get());
+            DB::select("SET lc_time_names = 'es_ES';");
+            return DB::select("select DATE_FORMAT(date, '%M %Y')  as month,SUM(total) as total from purchases where  YEAR(date)=" . $year . " and status=1 GROUP BY MONTH(date),month  ORDER BY MONTH(date) ASC LIMIT 12");
         }
-
     }
 }

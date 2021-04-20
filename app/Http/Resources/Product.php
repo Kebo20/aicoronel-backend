@@ -21,7 +21,7 @@ class Product extends JsonResource
             'name_brand'=>htmlspecialchars($this->code .'  '.$this->name),
             'price'=>htmlspecialchars($this->price),
             'price2'=>htmlspecialchars($this->price2),
-
+            'price_min'=>htmlspecialchars($this->price_min),
             'brand'=>htmlspecialchars($this->brand),
             'units'=>htmlspecialchars($this->units),
             'id_category'=>$this->id_category,
