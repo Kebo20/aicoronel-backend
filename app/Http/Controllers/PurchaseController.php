@@ -42,7 +42,7 @@ class PurchaseController extends Controller
     {
         return ResourcesPurchaseDetail::collection(PurchaseDetail::where('id_product', $request->id_product)
             ->where('status', 1)
-            ->orderBy('date', 'DESC')->get());
+            ->orderBy('id_purchase_detail', 'DESC')->take(10)->get());
     }
     public function count()
     {

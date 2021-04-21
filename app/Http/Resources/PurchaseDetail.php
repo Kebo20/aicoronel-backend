@@ -23,7 +23,8 @@ class PurchaseDetail extends JsonResource
             'id_product'=>($this->id_product),
             'id_lot'=>($this->id_lot),
             'status'=>$this->status,
-            // 'purchase'=>new Purchase($this->purchase)
+            'date'=>(date_create_from_format('Y-m-d', $this->purchase->date)->format('d/m/Y')),
+            'number_doc'=>htmlspecialchars($this->purchase->number_doc),
         ];
     }
 }
